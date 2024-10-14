@@ -1,7 +1,15 @@
 import { Server } from "socket.io";
+import { createServer } from "http";
 import { GameManager } from "./GameManager";
 
-const io = new Server();
+const port = process.env.PORT || 8000;
+
+const server = createServer();
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
 
 const gameManager = new GameManager();
 
@@ -13,4 +21,6 @@ io.on("connection", (socket) => {
   });
 });
 
-io.listen(3000);
+server.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
