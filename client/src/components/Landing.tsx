@@ -7,7 +7,6 @@ export default function LandingPage() {
       {/* Hero Section */}
       <div
         className="relative flex h-screen flex-col items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: "url(/chess-board.jpg)" }}
       >
         <div className="absolute inset-0 bg-black opacity-60"></div>
         <div className="relative z-10 mx-auto max-w-3xl text-center">
