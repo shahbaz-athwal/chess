@@ -8,6 +8,7 @@ export class Game {
   private board: Chess;
   private moves: string[];
   private startTime: Date;
+  private moveCount = 0
 
   constructor(player1: Socket, player2: Socket) {
     this.player1 = player1;
@@ -38,6 +39,7 @@ export class Game {
 
     try {
       this.board.move(move);
+      this.moveCount++
       //   this.moves.push(move.from + move.to);
 
       // Broadcast the move to both players
