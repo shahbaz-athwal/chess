@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Socket, io } from 'socket.io-client';
 
-const WS_URL = 'ws://localhost:3000'; 
+const WS_URL = 'http://localhost:8000'; 
 
 export const useSocket = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
