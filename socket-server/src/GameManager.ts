@@ -25,7 +25,7 @@ export class GameManager {
 
   removeUser(socket: Socket) {
     // Remove the user from the list
-    this.users = this.users.filter(user => user !== socket);
+    this.users = this.users.filter((user) => user !== socket);
 
     // If the user was waiting to start a game, clear pendingUser
     if (this.pendingUser === socket) {
@@ -34,7 +34,9 @@ export class GameManager {
     }
 
     // Optionally, handle removing the user from any active games
-    this.games = this.games.filter(game => game.player1 !== socket && game.player2 !== socket);
+    this.games = this.games.filter(
+      (game) => game.player1 !== socket && game.player2 !== socket
+    );
   }
 
   private addHandler(socket: Socket) {
@@ -52,12 +54,11 @@ export class GameManager {
     });
 
     socket.on(MOVE, (moveData) => {
-        const game = this.games.find(game => game.player1 === socket || game.player2 === socket);
-        if (game) {
-            game.makeMove(socket, moveData);
-            console.log("MOVE:", moveData);
-      } else {
-        console.log("No active game found for the user.");
+      const game = this.games.find(
+        (game) => game.player1 === socket || game.player2 === socket
+      );
+      if (game) {
+        game.makeMove(socket, moveData);
       }
     });
   }

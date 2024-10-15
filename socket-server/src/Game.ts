@@ -39,6 +39,7 @@ export class Game {
     // Attempt to make the move on the board
     try {
       this.board.move(move);
+      console.log("MOVE:", move);
     } catch (error) {
       socket.emit(INVALID_MOVE, { message: "Invalid move!" });
       return;
