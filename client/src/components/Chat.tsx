@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useState, useRef, useEffect } from "react";
 import { ScrollArea } from "./ui/scroll-area";
@@ -11,7 +11,9 @@ interface ChatProps {
 }
 
 const Chat: React.FC<ChatProps> = ({ socket }) => {
-  const [messages, setMessages] = useState<{ from: string; text: string }[]>([]);
+  const [messages, setMessages] = useState<{ from: string; text: string }[]>(
+    [],
+  );
   const [messageInput, setMessageInput] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -43,23 +45,31 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
       ...prevMessages,
       { from: "You", text: messageInput },
     ]);
-    
+
     setMessageInput("");
   };
 
   return (
-    <div className="mx-auto w-full max-w-md rounded-lg bg-gray-100 p-4 shadow-lg">
-      <h2 className="mb-4 text-center text-lg font-semibold">Chat</h2>
+    <div className="mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
+      <h2 className="mb-4 text-center text-2xl font-semibold text-gray-700">
+        Chat
+      </h2>
 
+      {/* Scrollable Chat Area */}
       <ScrollArea
-        className="h-64 overflow-y-auto rounded-lg border border-gray-200 bg-white p-4"
+        className="mb-4 h-64 overflow-y-auto rounded-lg border border-gray-200 bg-gray-100 p-4"
         ref={scrollAreaRef}
       >
         {messages.length > 0 ? (
           messages.map((message, index) => (
-            <div key={index} className="mb-2">
-              <strong>{message.from}: </strong>
-              <span>{message.text}</span>
+            <div
+              key={index}
+              className={`mb-2 rounded-lg p-2 ${
+                message.from === "You" ? "bg-blue-100" : "bg-gray-100"
+              }`}
+            >
+              <strong className="text-blue-700">{message.from}: </strong>
+              <span className="text-gray-700">{message.text}</span>
             </div>
           ))
         ) : (
@@ -69,12 +79,12 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
         )}
       </ScrollArea>
 
-      <div className="mt-4 flex gap-2">
+      {/* Message Input and Send Button */}
+      <div className="flex gap-2">
         <Input
           value={messageInput}
           onChange={(e) => setMessageInput(e.target.value)}
           placeholder="Type a message..."
-          className="flex-1"
         />
         <Button onClick={handleSendMessage}>Send</Button>
       </div>
