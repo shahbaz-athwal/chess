@@ -1,4 +1,5 @@
 "use client";
+import Chat from "@/components/Chat";
 import ChessBoard from "@/components/ChessBoard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,9 +52,9 @@ const Game = () => {
           setErrorMessage(null);
           setIsFindingMatch(false);
           console.log(
-            `Game initialized. You are playing as ${data.color === "w" ? "White" : "Black"}`
+            `Game initialized. You are playing as ${data.color === "w" ? "White" : "Black"}`,
           );
-        }
+        },
       );
 
       // Listen for move events
@@ -68,7 +69,7 @@ const Game = () => {
           setCurrentTurn(data.turn);
           setErrorMessage(null);
           console.log("Move made:", data.move);
-        }
+        },
       );
 
       // Listen for invalid move events
@@ -97,40 +98,49 @@ const Game = () => {
   };
 
   return (
-    <div>
-      <ChessBoard
-        board={board}
-        socket={socket!}
-        onMove={handleMove}
-        playerColor={playerColor!}
-      />
+    <div className="flex">
+      <div className="w-2/3">
+        <ChessBoard
+          board={board}
+          socket={socket!}
+          onMove={handleMove}
+          playerColor={playerColor!}
+        />
+        {matchFound && (
+          <div className="mt-4 text-center">
+            {currentTurn === playerColor
+              ? "Your turn"
+              : `Waiting for opponent (${currentTurn === "w" ? "White" : "Black"}'s turn)`}
+          </div>
+        )}
+        {errorMessage && (
+          <div className="mt-2 text-center text-red-500">{errorMessage}</div>
+        )}
+        {!matchFound && (
+          <div className="mt-12 flex justify-center gap-4">
+            <Input
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                setName(event.target.value)
+              }
+              className="w-48"
+              placeholder="Enter your name"
+              value={name}
+              disabled={isFindingMatch} // Disable input when searching for a match
+            />
+            <Button
+              onClick={handleFindMatch}
+              disabled={isFindingMatch || matchFound} // Disable button if searching or match found
+            >
+              {isFindingMatch ? "Finding Match..." : "Find a Match"}
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Chat Component */}
       {matchFound && (
-        <div className="mt-4 text-center">
-          {currentTurn === playerColor
-            ? "Your turn"
-            : `Waiting for opponent (${currentTurn === "w" ? "White" : "Black"}'s turn)`}
-        </div>
-      )}
-      {errorMessage && (
-        <div className="mt-2 text-center text-red-500">{errorMessage}</div>
-      )}
-      {!matchFound && (
-        <div className="mt-12 flex justify-center gap-4">
-          <Input
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-              setName(event.target.value)
-            }
-            className="w-48"
-            placeholder="Enter your name"
-            value={name}
-            disabled={isFindingMatch} // Disable input when searching for a match
-          />
-          <Button
-            onClick={handleFindMatch}
-            disabled={isFindingMatch || matchFound} // Disable button if searching or match found
-          >
-            {isFindingMatch ? "Finding Match..." : "Find a Match"}
-          </Button>
+        <div className="w-1/3">
+          <Chat socket={socket!} />
         </div>
       )}
     </div>

@@ -6,7 +6,6 @@ export class Game {
   public player1: Socket;
   public player2: Socket;
   private board: Chess;
-  private moveCount = 0;
 
   constructor(player1: Socket, player2: Socket) {
     this.player1 = player1;
@@ -16,6 +15,15 @@ export class Game {
     // Send start_game to both players with their assigned colors and initial board
     this.player1.emit(START_GAME, { color: "w", board: this.board.board(), turn: this.board.turn() });
     this.player2.emit(START_GAME, { color: "b", board: this.board.board(), turn: this.board.turn() });
+
+    this.handleChat(player1, player2);
+    this.handleChat(player2, player1);
+  }
+
+  handleChat(sender: Socket, receiver: Socket) {
+    sender.on("chat", (message: {from: string, text: string}) => {
+      receiver.emit("chat", { from: "Opponent", text: message.text });
+    });
   }
 
   makeMove(
@@ -47,8 +55,6 @@ export class Game {
       return;
     }
 
-    // If the move is valid, update the move count and broadcast the new state
-    this.moveCount++;
     const boardState = this.board.board();
     const turn = this.board.turn();  // Get the updated turn
 
