@@ -3,28 +3,28 @@ import React, { useState } from "react";
 import { Socket } from "socket.io-client";
 
 interface ChessBoardProps {
-  board: ( 
-    ({
-      square: Square;
-      type: PieceSymbol;
-      color: Color;
-    } | null)[])[];
+  board: ({
+    square: Square;
+    type: PieceSymbol;
+    color: Color;
+  } | null)[][];
   socket: Socket;
-  onMove: (from: string, to: string) => void; // Prop to handle the move
-  playerColor: "w" | "b"; // Pass player's color to adjust the board orientation
+  onMove: (from: string, to: string) => void;
+  playerColor: "w" | "b";
 }
 
 function ChessBoard({ board, socket, onMove, playerColor }: ChessBoardProps) {
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
 
-  // Function to handle selecting or moving a piece
-  const handleSquareClick = (square: Square, piece: { type: PieceSymbol; color: Color } | null) => {
+  const handleSquareClick = (
+    square: Square,
+    piece: { type: PieceSymbol; color: Color } | null,
+  ) => {
     if (selectedSquare) {
       // If a square is already selected, treat this click as a move destination
       onMove(selectedSquare, square); // Call the parent handler to process the move
       setSelectedSquare(null); // Clear the selection after the move
     } else if (piece) {
-      // Select the square if it contains a piece
       setSelectedSquare(square);
     }
   };
@@ -34,33 +34,31 @@ function ChessBoard({ board, socket, onMove, playerColor }: ChessBoardProps) {
 
   return (
     <div className="text-white">
-      <div className="flex flex-col">
+      <div className="mt-12 flex flex-col items-center">
         {renderedBoard.map((row, i) => (
           <div key={i} className="flex">
             {row.map((square, j) => {
-              const squareName = playerColor === "w"
-                ? String.fromCharCode(97 + j) + (8 - i) // White's perspective
-                : String.fromCharCode(97 + j) + (i + 1); // Black's perspective
-              const piece = square ? { type: square.type, color: square.color } : null;
+              const squareName =
+                playerColor === "w"
+                  ? String.fromCharCode(97 + j) + (8 - i) // White's perspective
+                  : String.fromCharCode(97 + j) + (i + 1); // Black's perspective
+              const piece = square
+                ? { type: square.type, color: square.color }
+                : null;
 
               return (
                 <div
                   key={j}
                   onClick={() => handleSquareClick(squareName as Square, piece)}
-                  className={`flex h-16 w-16 items-center justify-center cursor-pointer ${
+                  className={`flex h-12 w-12 cursor-pointer items-center justify-center ${
                     (i + j) % 2 === 0 ? "bg-gray-500" : "bg-gray-300"
-                  } ${
-                    selectedSquare === squareName ? "bg-yellow-400" : ""
-                  }`} // Highlight the selected square
+                  } ${selectedSquare === squareName ? "bg-yellow-600" : ""}`}
                 >
                   {square ? (
-                    <span
-                      className={`text-3xl ${
-                        square.color === "w" ? "text-white" : "text-black"
-                      }`}
-                    >
-                      {piece?.type}
-                    </span>
+                    <img
+                      className="w-[2.25rem]"
+                      src={`/${square?.color === "b" ? `b${square.type}` : `w${square.type}`}.png`}
+                    />
                   ) : null}
                 </div>
               );
