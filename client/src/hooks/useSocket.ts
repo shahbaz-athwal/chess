@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { Socket, io } from 'socket.io-client';
+import { useEffect, useState } from "react";
+import { io } from "socket.io-client";
+import type { Socket } from "socket.io-client";
 
-const WS_URL = 'http://localhost:8000'; 
+const WS_URL = "http://localhost:8000";
 
 export const useSocket = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -11,13 +12,13 @@ export const useSocket = () => {
   useEffect(() => {
     const socket = io(WS_URL);
 
-    socket.on('connect', () => {
-      console.log('Connected to WebSocket');
+    socket.on("connect", () => {
+      console.log("Connected to WebSocket");
       setSocket(socket);
     });
 
-    socket.on('disconnect', () => {
-      console.log('Disconnected from WebSocket');
+    socket.on("disconnect", () => {
+      console.log("Disconnected from WebSocket");
       setSocket(null);
     });
 

@@ -1,6 +1,6 @@
-import { Color, PieceSymbol, Square } from "chess.js";
+import type { Color, PieceSymbol, Square } from "chess.js";
+import Image from "next/image";
 import React, { useState } from "react";
-import { Socket } from "socket.io-client";
 
 interface ChessBoardProps {
   board: ({
@@ -8,12 +8,11 @@ interface ChessBoardProps {
     type: PieceSymbol;
     color: Color;
   } | null)[][];
-  socket: Socket;
   onMove: (from: string, to: string) => void;
   playerColor: "w" | "b";
 }
 
-function ChessBoard({ board, socket, onMove, playerColor }: ChessBoardProps) {
+function ChessBoard({ board, onMove, playerColor }: ChessBoardProps) {
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
 
   const handleSquareClick = (
@@ -21,15 +20,13 @@ function ChessBoard({ board, socket, onMove, playerColor }: ChessBoardProps) {
     piece: { type: PieceSymbol; color: Color } | null,
   ) => {
     if (selectedSquare) {
-      // If a square is already selected, treat this click as a move destination
-      onMove(selectedSquare, square); // Call the parent handler to process the move
-      setSelectedSquare(null); // Clear the selection after the move
+      onMove(selectedSquare, square);
+      setSelectedSquare(null);
     } else if (piece) {
       setSelectedSquare(square);
     }
   };
 
-  // If the player is black, reverse both the rows and columns for 180-degree rotation
   const renderedBoard =
     playerColor === "b"
       ? board.map((row) => [...row].reverse()).reverse() // Reverse both rows and columns
@@ -59,7 +56,8 @@ function ChessBoard({ board, socket, onMove, playerColor }: ChessBoardProps) {
                   } ${selectedSquare === squareName ? "bg-yellow-600" : ""}`}
                 >
                   {square ? (
-                    <img
+                    <Image
+                      alt={square.square}
                       className="w-[2.25rem]"
                       src={`/${square?.color === "b" ? `b${square.type}` : `w${square.type}`}.png`}
                     />

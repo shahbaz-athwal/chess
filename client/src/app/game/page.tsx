@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSocket } from "@/hooks/useSocket";
 import { Chess } from "chess.js";
-import { Divide } from "lucide-react";
+import type { Square, PieceSymbol, Color } from "chess.js";
+
 import { useEffect, useState } from "react";
 
 const Game = () => {
@@ -19,17 +20,17 @@ const Game = () => {
   const [currentTurn, setCurrentTurn] = useState<"w" | "b">("w");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSocketConnected, setIsSocketConnected] = useState(false);
-  const [isFindingMatch, setIsFindingMatch] = useState(false); // For button state
+  const [isFindingMatch, setIsFindingMatch] = useState(false);
 
   const handleFindMatch = () => {
     if (!name) {
       setErrorMessage("Name is required to find a match!");
       return;
     }
-    setErrorMessage(null); // Clear error message if name is valid
+    setErrorMessage(null);
 
     if (socket && !isSocketConnected) {
-      setIsFindingMatch(true); // Show loading on the button
+      setIsFindingMatch(true);
       console.log("Connecting to socket...");
 
       socket.emit("init_game", { name });
@@ -38,15 +39,17 @@ const Game = () => {
     }
   };
 
-  // Manage socket events only once after connection
   useEffect(() => {
     if (isSocketConnected && socket) {
-      // Listen for the game start event
       socket.on(
         "start_game",
         (data: {
           color: "w" | "b";
-          board: any[][];
+          board: {
+            square: Square;
+            type: PieceSymbol;
+            color: Color;
+          }[][];
           turn: "w" | "b";
           opp: string;
         }) => {
@@ -64,12 +67,15 @@ const Game = () => {
         },
       );
 
-      // Listen for move events
       socket.on(
         "move",
         (data: {
           move: { from: string; to: string };
-          board: any[][];
+          board: {
+            square: Square;
+            type: PieceSymbol;
+            color: Color;
+          }[][];
           turn: "w" | "b";
         }) => {
           setBoard(data.board);
@@ -79,13 +85,11 @@ const Game = () => {
         },
       );
 
-      // Listen for invalid move events
       socket.on("invalid_move", (data: { message: string }) => {
         setErrorMessage(data.message);
         console.log(data.message);
       });
 
-      // Cleanup socket listeners when the component unmounts or re-renders
       return () => {
         socket.off("move");
         socket.off("start_game");
@@ -94,7 +98,6 @@ const Game = () => {
     }
   }, [isSocketConnected, socket]);
 
-  // Function to handle a move from the client
   const handleMove = (from: string, to: string) => {
     if (currentTurn !== playerColor) {
       setErrorMessage("It's not your turn!");
@@ -107,24 +110,20 @@ const Game = () => {
   return (
     <div className="flex gap-6 p-6">
       <div className="w-2/3 rounded-lg bg-white p-6 shadow-md">
-        {/* Match Information */}
         {matchFound && (
           <div className="mb-4 text-center text-2xl font-semibold text-gray-700">
             {name} <span className="text-gray-500">vs</span> {oppName}
           </div>
         )}
 
-        {/* Chess Board */}
         <div className="mb-4">
           <ChessBoard
             board={board}
-            socket={socket!}
             onMove={handleMove}
             playerColor={playerColor!}
           />
         </div>
 
-        {/* Turn Indicator */}
         {matchFound && (
           <div className="mt-4 text-center text-xl font-medium text-gray-600">
             {currentTurn === playerColor
@@ -133,14 +132,12 @@ const Game = () => {
           </div>
         )}
 
-        {/* Error Message */}
         {errorMessage && (
           <div className="mt-2 text-center font-medium text-red-500">
             {errorMessage}
           </div>
         )}
 
-        {/* Match Finding Input */}
         {!matchFound && (
           <div className="mt-12 flex items-center justify-center gap-4">
             <Input
@@ -161,7 +158,6 @@ const Game = () => {
         )}
       </div>
 
-      {/* Chat Box */}
       {matchFound && (
         <div className="w-1/3 rounded-lg bg-gray-50 p-6 shadow-lg">
           <Chat socket={socket!} />

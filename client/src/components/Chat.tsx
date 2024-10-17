@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { ScrollArea } from "./ui/scroll-area";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Socket } from "socket.io-client";
+import type { Socket } from "socket.io-client";
 
 interface ChatProps {
   socket: Socket;
