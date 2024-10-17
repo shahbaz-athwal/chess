@@ -29,8 +29,11 @@ function ChessBoard({ board, socket, onMove, playerColor }: ChessBoardProps) {
     }
   };
 
-  // If the player is black, we need to flip the board
-  const renderedBoard = playerColor === "b" ? [...board].reverse() : board;
+  // If the player is black, reverse both the rows and columns for 180-degree rotation
+  const renderedBoard =
+    playerColor === "b"
+      ? board.map((row) => [...row].reverse()).reverse() // Reverse both rows and columns
+      : board;
 
   return (
     <div className="text-white">
@@ -41,7 +44,8 @@ function ChessBoard({ board, socket, onMove, playerColor }: ChessBoardProps) {
               const squareName =
                 playerColor === "w"
                   ? String.fromCharCode(97 + j) + (8 - i) // White's perspective
-                  : String.fromCharCode(97 + j) + (i + 1); // Black's perspective
+                  : String.fromCharCode(97 + (7 - j)) + (i + 1); // Black's perspective, reversed columns
+
               const piece = square
                 ? { type: square.type, color: square.color }
                 : null;

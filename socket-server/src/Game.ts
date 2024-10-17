@@ -41,6 +41,8 @@ export class Game {
       this.board.move(move);
       console.log("MOVE:", move);
     } catch (error) {
+      console.log(this.board.ascii());
+      console.log("MOVE:", move);
       socket.emit(INVALID_MOVE, { message: "Invalid move!" });
       return;
     }
