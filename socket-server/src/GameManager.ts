@@ -44,6 +44,8 @@ export class GameManager {
   }
 
   removeUser(socket: Socket) {
+    console.log("User Left.");
+
     this.users = this.users.filter((user) => user.socket !== socket);
 
     if (this.pendingPlayer?.socket === socket) {

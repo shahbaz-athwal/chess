@@ -11,13 +11,22 @@ const io = new Server(server, {
   },
 });
 
+let onlineCount = 0;
+
 const gameManager = new GameManager();
 
 io.on("connection", (socket) => {
   gameManager.addUser(socket);
+  onlineCount += 1;
+  socket.on("getOnlineCount", () => {
+    io.emit("onlineCount", onlineCount);
+  });
+  io.emit("onlineCount", onlineCount);
 
   socket.on("disconnect", () => {
     gameManager.removeUser(socket);
+    onlineCount -= 1;
+    io.emit("onlineCount", onlineCount);
   });
 });
 

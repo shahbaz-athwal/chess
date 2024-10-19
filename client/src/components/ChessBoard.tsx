@@ -58,6 +58,8 @@ function ChessBoard({ board, onMove, playerColor }: ChessBoardProps) {
                   {square ? (
                     <Image
                       alt={square.square}
+                      width={40}
+                      height={40}
                       className="w-[2.25rem]"
                       src={`/${square?.color === "b" ? `b${square.type}` : `w${square.type}`}.png`}
                     />
