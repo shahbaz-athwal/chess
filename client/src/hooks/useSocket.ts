@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import type { Socket } from "socket.io-client";
 
-const WS_URL = "http://localhost:8000";
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL
 
 export const useSocket = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
