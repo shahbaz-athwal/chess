@@ -52,7 +52,7 @@ function ChessBoard({ board, onMove, playerColor }: ChessBoardProps) {
                   key={j}
                   onClick={() => handleSquareClick(squareName as Square, piece)}
                   className={`flex h-12 w-12 cursor-pointer items-center justify-center ${
-                    (i + j) % 2 === 0 ? "bg-gray-500" : "bg-gray-300"
+                    (i + j) % 2 === 0 ? "bg-zinc-800/50" : "bg-zinc-300"
                   } ${selectedSquare === squareName ? "bg-yellow-600" : ""}`}
                 >
                   {square ? (

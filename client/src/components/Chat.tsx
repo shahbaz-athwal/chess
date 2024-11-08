@@ -5,6 +5,7 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import type { Socket } from "socket.io-client";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 interface ChatProps {
   socket: Socket;
@@ -50,45 +51,44 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
   };
 
   return (
-    <div className="mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
-      <h2 className="mb-4 text-center text-2xl font-semibold text-gray-700">
-        Chat
-      </h2>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="text-center">Chat</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ScrollArea
+          className="mb-4 h-64 rounded-lg border"
+          ref={scrollAreaRef}
+        >
+          {messages.length > 0 ? (
+            messages.map((message, index) => (
+              <div
+                key={index}
+                className={`mb-2 rounded-lg p-2 ${
+                  message.from === "You" ? "bg-primary/10" : "bg-muted"
+                }`}
+              >
+                <strong className="text-primary">{message.from}: </strong>
+                <span>{message.text}</span>
+              </div>
+            ))
+          ) : (
+            <p className="text-center text-muted-foreground p-4">
+              No messages yet. Start the conversation!
+            </p>
+          )}
+        </ScrollArea>
 
-      {/* Scrollable Chat Area */}
-      <ScrollArea
-        className="mb-4 h-64 overflow-y-auto rounded-lg border border-gray-200 bg-gray-100 p-4"
-        ref={scrollAreaRef}
-      >
-        {messages.length > 0 ? (
-          messages.map((message, index) => (
-            <div
-              key={index}
-              className={`mb-2 rounded-lg p-2 ${
-                message.from === "You" ? "bg-blue-100" : "bg-gray-100"
-              }`}
-            >
-              <strong className="text-blue-700">{message.from}: </strong>
-              <span className="text-gray-700">{message.text}</span>
-            </div>
-          ))
-        ) : (
-          <p className="text-center text-gray-500">
-            No messages yet. Start the conversation!
-          </p>
-        )}
-      </ScrollArea>
-
-      {/* Message Input and Send Button */}
-      <div className="flex gap-2">
-        <Input
-          value={messageInput}
-          onChange={(e) => setMessageInput(e.target.value)}
-          placeholder="Type a message..."
-        />
-        <Button onClick={handleSendMessage}>Send</Button>
-      </div>
-    </div>
+        <div className="flex gap-2">
+          <Input
+            value={messageInput}
+            onChange={(e) => setMessageInput(e.target.value)}
+            placeholder="Type a message..."
+          />
+          <Button onClick={handleSendMessage}>Send</Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

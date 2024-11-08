@@ -21,7 +21,7 @@ function OnlineCount() {
   }, [socket]);
 
   return (
-    <div className="pb-8 text-2xl font-extrabold">
+    <div className="pb-8 text-2xl font-extrabold text-primary">
       Currently Online {"->"} {onlineCount}
     </div>
   );
