@@ -37,6 +37,11 @@ export const MatchFinder: React.FC<MatchFinderProps> = ({ initGame }) => {
         onChange={(e) => setPlayerName(e.target.value)}
         placeholder="Enter your name"
         value={playerName}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            handleFindMatch();
+          }
+        }}
         disabled={isFindingMatch}
       />
       <Button onClick={handleFindMatch} disabled={isFindingMatch || matchFound}>

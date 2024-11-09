@@ -28,7 +28,7 @@ export default function RootLayout({
             <Navbar />
             <main className="flex-1">{children}</main>
             <footer className="border-t py-[1.32rem]">
-              <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+              <div className="container mx-auto px-4 text-center text-xs sm:text-sm text-muted-foreground">
                 <p>
                   Built by{" "}
                   <Link

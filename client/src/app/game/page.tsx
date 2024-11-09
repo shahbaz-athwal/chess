@@ -54,9 +54,9 @@ export default function Game() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto my-8 sm:my-12 px-2">
       <div className="flex flex-col lg:flex-row gap-6">
-        <Card className="w-full lg:w-2/3">
+        <Card className="w-full lg:w-4/5">
           <CardHeader>
             <GameStatus />
           </CardHeader>

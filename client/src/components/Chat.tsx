@@ -7,16 +7,20 @@ import { Button } from "./ui/button";
 import type { Socket } from "socket.io-client";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { useGameStore } from "@/hooks/useGameStore";
+import { Avatar, AvatarFallback } from "./ui/avatar";
 
 interface ChatProps {
   socket: Socket;
 }
 
+interface Message {
+  from: string;
+  text: string;
+}
+
 const Chat: React.FC<ChatProps> = ({ socket }) => {
   const { matchFound } = useGameStore();
-  const [messages, setMessages] = useState<{ from: string; text: string }[]>(
-    []
-  );
+  const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -54,25 +58,42 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
 
   return (
     matchFound && (
-      <Card className="w-full">
+      <Card className="w-full lg:max-w-xs">
         <CardHeader>
           <CardTitle className="text-center">Chat</CardTitle>
         </CardHeader>
         <CardContent>
           <ScrollArea
-            className="mb-4 h-64 rounded-lg border"
+            className="mb-4 h-[30vh] md:h-[55vh] rounded-lg border p-4"
             ref={scrollAreaRef}
           >
             {messages.length > 0 ? (
               messages.map((message, index) => (
                 <div
                   key={index}
-                  className={`mb-2 rounded-lg p-2 ${
-                    message.from === "You" ? "bg-primary/10" : "bg-muted"
+                  className={`mb-4 flex items-start ${
+                    message.from === "You" ? "justify-end" : "justify-start"
                   }`}
                 >
-                  <strong className="text-primary">{message.from}: </strong>
-                  <span>{message.text}</span>
+                  {message.from !== "You" && (
+                    <Avatar className="mr-2">
+                      <AvatarFallback>{message.from[0]}</AvatarFallback>
+                    </Avatar>
+                  )}
+                  <div
+                    className={`rounded-lg max-w-[15rem] w-fit p-[10px]  ${
+                      message.from === "You"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted"
+                    }`}
+                  >
+                    <p className="text-sm">{message.text}</p>
+                  </div>
+                  {message.from === "You" && (
+                    <Avatar className="ml-2">
+                      <AvatarFallback>Y</AvatarFallback>
+                    </Avatar>
+                  )}
                 </div>
               ))
             ) : (
@@ -87,6 +108,11 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
               value={messageInput}
               onChange={(e) => setMessageInput(e.target.value)}
               placeholder="Type a message..."
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSendMessage();
+                }
+              }}
             />
             <Button onClick={handleSendMessage}>Send</Button>
           </div>

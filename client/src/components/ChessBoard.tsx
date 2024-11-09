@@ -30,8 +30,8 @@ function ChessBoard({ onMove }: ChessBoardProps) {
       : board;
 
   return (
-    <div className="text-white">
-      <div className="mt-12 flex flex-col items-center">
+    <div className="text-white p-2 sm:p-0">
+      <div className="mt-2 sm:mt-4 lg:mt-12 flex flex-col items-center">
         {renderedBoard.map((row, i) => (
           <div key={i} className="flex">
             {row.map((square, j) => {
@@ -48,7 +48,7 @@ function ChessBoard({ onMove }: ChessBoardProps) {
                 <div
                   key={j}
                   onClick={() => handleSquareClick(squareName as Square, piece)}
-                  className={`flex h-12 w-12 cursor-pointer items-center justify-center ${
+                  className={`flex aspect-square w-[11vw] sm:w-[8vw] md:w-[6vw] lg:w-[4vw] xl:w-[3vw] cursor-pointer items-center justify-center ${
                     (i + j) % 2 === 0 ? "bg-zinc-800/50" : "bg-zinc-300"
                   } ${selectedSquare === squareName ? "bg-yellow-600" : ""}`}
                 >
@@ -57,7 +57,7 @@ function ChessBoard({ onMove }: ChessBoardProps) {
                       alt={square.square}
                       width={40}
                       height={40}
-                      className="w-[2.25rem]"
+                      className="w-[80%] h-[80%]"
                       src={`/${
                         square?.color === "b"
                           ? `b${square.type}`
