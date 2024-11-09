@@ -2,34 +2,55 @@ import { Server } from "socket.io";
 import { createServer } from "http";
 import { GameManager } from "./GameManager";
 
-const port = process.env.PORT || 8000;
+class ChessServer {
+  private io: Server;
+  private gameManager: GameManager;
+  private onlineCount: number = 0;
 
-const server = createServer();
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-  },
-});
+  constructor() {
+    const server = createServer();
+    this.io = new Server(server, {
+      cors: {
+        origin: "*",
+      },
+    });
 
-let onlineCount = 0;
+    this.gameManager = new GameManager();
+    this.setupSocketHandlers();
 
-const gameManager = new GameManager();
+    const port = process.env.PORT || 8800;
+    server.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
+  }
 
-io.on("connection", (socket) => {
-  gameManager.addUser(socket);
-  onlineCount += 1;
-  socket.on("getOnlineCount", () => {
-    io.emit("onlineCount", onlineCount);
-  });
-  io.emit("onlineCount", onlineCount);
+  private setupSocketHandlers(): void {
+    this.io.on("connection", (socket) => {
+      // Add user to game manager
+      this.gameManager.addUser(socket);
 
-  socket.on("disconnect", () => {
-    gameManager.removeUser(socket);
-    onlineCount -= 1;
-    io.emit("onlineCount", onlineCount);
-  });
-});
+      // Handle online count
+      this.onlineCount++;
+      this.broadcastOnlineCount();
 
-server.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+      // Handle disconnect
+      socket.on("disconnect", () => {
+        this.gameManager.removeUser(socket);
+        this.onlineCount--;
+        this.broadcastOnlineCount();
+      });
+
+      // Handle online count requests
+      socket.on("getOnlineCount", () => {
+        this.broadcastOnlineCount();
+      });
+    });
+  }
+
+  private broadcastOnlineCount(): void {
+    this.io.emit("onlineCount", this.onlineCount);
+  }
+}
+
+// Start the server
+new ChessServer();

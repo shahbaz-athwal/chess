@@ -1,77 +1,214 @@
-import { BLACK, Chess, WHITE } from "chess.js";
+import { Chess } from "chess.js";
+import {
+  GameConfig,
+  GameMove,
+  GameResult,
+  GameState,
+  GameStatus,
+  Player,
+} from "./types";
+import { GameEvents } from "./GameEvents";
+import { GAME_TIME, START_GAME } from "./messages";
 import { Socket } from "socket.io";
-import { GAME_OVER, MOVE, START_GAME, INVALID_MOVE } from "./messages"; // Add INVALID_MOVE event
-import { Player } from "./GameManager";
 
 export class Game {
-  public player1: Player;
-  public player2: Player;
-  private board: Chess;
+  private readonly state: GameState;
+  private readonly config: GameConfig;
+  private timer?: NodeJS.Timeout;
 
-  constructor(player1: Player, player2: Player) {
-    this.player1 = player1;
-    this.player2 = player2;
-    this.board = new Chess();
+  constructor(
+    public readonly player1: Player,
+    public readonly player2: Player,
+    config: Partial<GameConfig> = {}
+  ) {
+    this.config = {
+      timeLimit: 10 * 60 * 1000, // 10 minutes
+      incrementSeconds: 0,
+      ...config,
+    };
 
-    // Send start_game to both players with their assigned colors and initial board
-    this.player1.socket.emit(START_GAME, { color: "w", board: this.board.board(), turn: this.board.turn(), opp: this.player2.name });
-    this.player2.socket.emit(START_GAME, { color: "b", board: this.board.board(), turn: this.board.turn(), opp: this.player1.name });
+    this.state = {
+      board: new Chess(),
+      status: "IN_PROGRESS",
+      lastMoveTime: Date.now(),
+      timeRemaining: {
+        white: this.config.timeLimit,
+        black: this.config.timeLimit,
+      },
+    };
 
-    this.handleChat(player1, player2);
-    this.handleChat(player2, player1);
+    this.initializeGame();
   }
 
-  handleChat(sender: Player, receiver: Player) {
-    sender.socket.on("chat", (message: {from: string, text: string}) => {
-      receiver.socket.emit("chat", { from: sender.name, text: message.text });
+  private initializeGame() {
+    this.player1.color = "w";
+    this.player2.color = "b";
+
+    this.setupEventListeners();
+    this.startTimer();
+    this.broadcastGameStart();
+  }
+
+  private setupEventListeners() {
+    this.setupChatHandlers();
+    this.setupDisconnectHandlers();
+  }
+
+  private setupChatHandlers() {
+    const handleChat = (sender: Player, receiver: Player) => {
+      sender.socket.on("chat", (message: { text: string }) => {
+        GameEvents.emit(receiver.socket, "chat", {
+          from: sender.name,
+          text: message.text,
+        });
+      });
+    };
+
+    handleChat(this.player1, this.player2);
+    handleChat(this.player2, this.player1);
+  }
+
+  private setupDisconnectHandlers() {
+    const handleDisconnect = (player: Player) => {
+      player.socket.on("disconnect", () => {
+        this.handleGameEnd("PLAYER_EXIT");
+      });
+    };
+
+    handleDisconnect(this.player1);
+    handleDisconnect(this.player2);
+  }
+
+  private startTimer() {
+    this.timer = setInterval(() => this.updateGameTime(), 1000);
+  }
+
+  private updateGameTime() {
+    const currentPlayer = this.state.board.turn() === "w" ? "white" : "black";
+    this.state.timeRemaining[currentPlayer] -= 1000;
+
+    if (this.state.timeRemaining[currentPlayer] <= 0) {
+      this.handleGameEnd("TIME_UP");
+    }
+
+    GameEvents.emitToPlayers([this.player1, this.player2], GAME_TIME, {
+      timeRemaining: this.state.timeRemaining,
     });
   }
 
-  makeMove(
-    socket: Socket,
-    move: {
-      from: string;
-      to: string;
-    }
-  ) {
-    // Ensure only the correct player makes the move
-    if (this.board.turn() === "w" && socket !== this.player1.socket) {
-      socket.emit(INVALID_MOVE, { message: "It's not your turn!" });
-      return;
+  private broadcastGameStart() {
+    const initialState = {
+      board: this.state.board.board(),
+      turn: this.state.board.turn(),
+    };
+
+    GameEvents.emit(this.player1.socket, START_GAME, {
+      color: this.player1.color,
+      opponent: this.player2.name,
+      ...initialState,
+    });
+
+    GameEvents.emit(this.player2.socket, START_GAME, {
+      color: this.player2.color,
+      opponent: this.player1.name,
+      ...initialState,
+    });
+  }
+
+  public makeMove(socket: Socket, move: GameMove): boolean {
+    const player = this.getPlayerBySocket(socket);
+
+    if (!this.isValidTurn(player)) {
+      GameEvents.emitError(socket, "It's not your turn!");
+      return false;
     }
 
-    if (this.board.turn() === "b" && socket !== this.player2.socket) {
-      socket.emit(INVALID_MOVE, { message: "It's not your turn!" });
-      return;
-    }
-
-    // Attempt to make the move on the board
     try {
-      this.board.move(move);
-      console.log("MOVE:", move);
+      const moveResult = this.state.board.move(move);
+      if (!moveResult) {
+        GameEvents.emitError(socket, "Invalid move!");
+        return false;
+      }
+
+      this.handleSuccessfulMove(move);
+      return true;
     } catch (error) {
-      console.log(this.board.ascii());
-      console.log("MOVE:", move);
-      socket.emit(INVALID_MOVE, { message: "Invalid move!" });
-      return;
+      console.error("Move error:", error);
+      GameEvents.emitError(socket, "Invalid move!");
+      return false;
+    }
+  }
+
+  private handleSuccessfulMove(move: GameMove) {
+    const currentTime = Date.now();
+    const timeElapsed = currentTime - this.state.lastMoveTime;
+    this.updateTimeAfterMove(timeElapsed);
+
+    const gameState = {
+      move,
+      board: this.state.board.board(),
+      turn: this.state.board.turn(),
+      timeRemaining: this.state.timeRemaining,
+    };
+
+    GameEvents.emitGameState([this.player1, this.player2], gameState);
+
+    if (this.state.board.isGameOver()) {
+      this.handleGameEnd("COMPLETED");
+    }
+  }
+
+  private updateTimeAfterMove(timeElapsed: number) {
+    const previousPlayer = this.state.board.turn() === "w" ? "black" : "white";
+    this.state.timeRemaining[previousPlayer] -= timeElapsed;
+    this.state.timeRemaining[previousPlayer] +=
+      this.config.incrementSeconds * 1000;
+    this.state.lastMoveTime = Date.now();
+  }
+
+  private handleGameEnd(status: GameStatus) {
+    this.state.status = status;
+    if (this.timer) {
+      clearInterval(this.timer);
     }
 
-    const boardState = this.board.board();
-    const turn = this.board.turn();  // Get the updated turn
-
-    // Broadcast the updated board and turn to both players
-    this.player1.socket.emit(MOVE, { move, board: boardState, turn });
-    this.player2.socket.emit(MOVE, { move, board: boardState, turn });
-
-    // Check if the game is over
-    if (this.board.isGameOver()) {
-      const winner = this.board.turn() === WHITE ? BLACK : WHITE;
-
-      // Inform both players of game over
-      this.player1.socket.emit(GAME_OVER, { winner });
-      this.player2.socket.emit(GAME_OVER, { winner });
-
-      return;
+    const result = this.determineGameResult();
+    if (result) {
+      GameEvents.emitGameOver([this.player1, this.player2], result);
     }
+  }
+
+  private determineGameResult(): GameResult | undefined {
+    if (this.state.status === "TIME_UP") {
+      return this.state.board.turn() === "w" ? "BLACK_WINS" : "WHITE_WINS";
+    }
+
+    if (this.state.status === "PLAYER_EXIT") {
+      return undefined;
+    }
+
+    if (this.state.board.isCheckmate()) {
+      return this.state.board.turn() === "w" ? "BLACK_WINS" : "WHITE_WINS";
+    }
+
+    if (this.state.board.isDraw()) {
+      return "DRAW";
+    }
+
+    return undefined;
+  }
+
+  private isValidTurn(player?: Player): boolean {
+    if (!player) return false;
+    return (
+      (this.state.board.turn() === "w" && player.color === "w") ||
+      (this.state.board.turn() === "b" && player.color === "b")
+    );
+  }
+
+  private getPlayerBySocket(socket: Socket): Player | undefined {
+    return [this.player1, this.player2].find(
+      (player) => player.socket === socket
+    );
   }
 }

@@ -1,71 +1,88 @@
 import { Socket } from "socket.io";
-import { INIT_GAME, MOVE } from "./messages";
 import { Game } from "./Game";
-
-export interface Player {
-  socket: Socket;
-  name: string;
-}
+import { GameMove, Player } from "./types";
+import { GAME_ALERT, INIT_GAME, MOVE } from "./messages";
+import { GameEvents } from "./GameEvents";
 
 export class GameManager {
-  private games: Game[];
-  private pendingPlayer: Player | null;
-  private users: Player[];
+  private games: Map<string, Game>;
+  private pendingPlayers: Map<string, Player>;
 
   constructor() {
-    this.games = [];
-    this.users = [];
-    this.pendingPlayer = null;
+    this.games = new Map();
+    this.pendingPlayers = new Map();
   }
 
-  addUser(socket: Socket) {
-    console.log("User Joined.");
-
+  public addUser(socket: Socket): void {
     socket.on(INIT_GAME, (data: { name: string }) => {
-      console.log(`Received INIT_GAME from ${data.name}.`);
       const player: Player = { socket, name: data.name };
-      this.users.push(player);
-      this.addHandler(player);
+      this.handleNewPlayer(player);
+      this.setupDisconnectHandler(player);
+    });
+  }
 
-      if (this.pendingPlayer) {
-        const game = new Game(this.pendingPlayer, player);
-        console.log(`Game started between ${this.pendingPlayer.name} and ${player.name}.`);
-        this.games.push(game);
-        this.pendingPlayer = null;
-      } else {
-        this.pendingPlayer = player;
-        console.log(`${player.name} is waiting for another player.`);
-      }
+  public removeUser(socket: Socket): void {
+    this.pendingPlayers.delete(socket.id);
+    this.removePlayerGames(socket);
+  }
 
-      socket.on("disconnect", () => {
-        this.removeUser(socket);
+  private handleNewPlayer(player: Player): void {
+    const pendingPlayer = this.findPendingPlayer();
+
+    if (pendingPlayer) {
+      this.startGame(pendingPlayer, player);
+    } else {
+      this.pendingPlayers.set(player.socket.id, player);
+      GameEvents.emit(player.socket, GAME_ALERT, {
+        message: "Waiting for opponent...",
       });
-    });
-  }
-
-  removeUser(socket: Socket) {
-    console.log("User Left.");
-
-    this.users = this.users.filter((user) => user.socket !== socket);
-
-    if (this.pendingPlayer?.socket === socket) {
-      this.pendingPlayer = null;
-      console.log("Pending user disconnected.");
     }
-
-    this.games = this.games.filter(
-      (game) => game.player1.socket !== socket && game.player2.socket !== socket
-    );
   }
 
-  private addHandler(player: Player) {
-    player.socket.on(MOVE, (moveData) => {
-      const game = this.games.find(
-        (game) => game.player1.socket === player.socket || game.player2.socket === player.socket
-      );
-      if (game) {
-        game.makeMove(player.socket, moveData);
-      }
+  private startGame(player1: Player, player2: Player): void {
+    const game = new Game(player1, player2, {
+      timeLimit: 10 * 60 * 1000,
+      incrementSeconds: 10,
     });
+
+    this.games.set(this.generateGameId(player1, player2), game);
+    this.pendingPlayers.delete(player1.socket.id);
+
+    this.setupMoveHandler(game);
+  }
+
+  private setupMoveHandler(game: Game): void {
+    const handleMove = (socket: Socket) => {
+      socket.on(MOVE, (moveData: GameMove) => {
+        game.makeMove(socket, moveData);
+      });
+    };
+
+    handleMove(game.player1.socket);
+    handleMove(game.player2.socket);
+  }
+
+  private setupDisconnectHandler(player: Player): void {
+    player.socket.on("disconnect", () => {
+      this.pendingPlayers.delete(player.socket.id);
+      this.removePlayerGames(player.socket);
+    });
+  }
+
+  private findPendingPlayer(): Player | undefined {
+    const [firstPending] = this.pendingPlayers.values();
+    return firstPending;
+  }
+
+  private removePlayerGames(socket: Socket): void {
+    for (const [gameId, game] of this.games.entries()) {
+      if (game.player1.socket === socket || game.player2.socket === socket) {
+        this.games.delete(gameId);
+      }
+    }
+  }
+
+  private generateGameId(player1: Player, player2: Player): string {
+    return `${player1.socket.id}-${player2.socket.id}`;
   }
 }
