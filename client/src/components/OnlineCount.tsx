@@ -4,7 +4,7 @@ import { useSocket } from "@/hooks/useSocket";
 import React, { useEffect } from "react";
 
 function OnlineCount() {
-  const socket = useSocket();
+  const { socket } = useSocket();
   const [onlineCount, setOnlineCount] = React.useState(0);
 
   useEffect(() => {
