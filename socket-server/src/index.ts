@@ -40,7 +40,6 @@ class ChessServer {
         this.broadcastOnlineCount();
       });
 
-      // Handle online count requests
       socket.on("getOnlineCount", () => {
         this.broadcastOnlineCount();
       });

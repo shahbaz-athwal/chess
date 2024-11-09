@@ -6,11 +6,10 @@ import { GameEvents } from "./GameEvents";
 
 export class GameManager {
   private games: Map<string, Game>;
-  private pendingPlayers: Map<string, Player>;
+  private pendingPlayer: Player | null = null;
 
   constructor() {
     this.games = new Map();
-    this.pendingPlayers = new Map();
   }
 
   public addUser(socket: Socket): void {
@@ -22,17 +21,15 @@ export class GameManager {
   }
 
   public removeUser(socket: Socket): void {
-    this.pendingPlayers.delete(socket.id);
+    this.pendingPlayer = null;
     this.removePlayerGames(socket);
   }
 
   private handleNewPlayer(player: Player): void {
-    const pendingPlayer = this.findPendingPlayer();
-
-    if (pendingPlayer) {
-      this.startGame(pendingPlayer, player);
+    if (this.pendingPlayer) {
+      this.startGame(this.pendingPlayer, player);
     } else {
-      this.pendingPlayers.set(player.socket.id, player);
+      this.pendingPlayer = player;
       GameEvents.emit(player.socket, GAME_ALERT, {
         message: "Waiting for opponent...",
       });
@@ -40,15 +37,35 @@ export class GameManager {
   }
 
   private startGame(player1: Player, player2: Player): void {
-    const game = new Game(player1, player2, {
-      timeLimit: 10 * 60 * 1000,
-      incrementSeconds: 10,
-    });
+    try {
+      const gameId = this.generateGameId(player1, player2);
+      
+      // Check if game already exists
+      if (this.games.has(gameId)) {
+        throw new Error('Game already exists');
+      }
 
-    this.games.set(this.generateGameId(player1, player2), game);
-    this.pendingPlayers.delete(player1.socket.id);
+      const game = new Game(player1, player2, {
+        timeLimit: 10 * 60 * 1000, // 10 minutes
+        incrementSeconds: 10,
+      });
 
-    this.setupMoveHandler(game);
+      this.games.set(gameId, game);
+      this.pendingPlayer = null;
+      
+      this.setupMoveHandler(game);
+      
+      console.log(`New game started: ${gameId}`);
+      console.log('Active games:', this.games.size);
+    } catch (error) {
+      console.error('Error starting game:', error);
+      GameEvents.emit(player1.socket, GAME_ALERT, {
+        message: "Error starting game",
+      });
+      GameEvents.emit(player2.socket, GAME_ALERT, {
+        message: "Error starting game",
+      });
+    }
   }
 
   private setupMoveHandler(game: Game): void {
@@ -64,14 +81,9 @@ export class GameManager {
 
   private setupDisconnectHandler(player: Player): void {
     player.socket.on("disconnect", () => {
-      this.pendingPlayers.delete(player.socket.id);
+      this.pendingPlayer = null;
       this.removePlayerGames(player.socket);
     });
-  }
-
-  private findPendingPlayer(): Player | undefined {
-    const [firstPending] = this.pendingPlayers.values();
-    return firstPending;
   }
 
   private removePlayerGames(socket: Socket): void {
@@ -83,6 +95,8 @@ export class GameManager {
   }
 
   private generateGameId(player1: Player, player2: Player): string {
-    return `${player1.socket.id}-${player2.socket.id}`;
+    // Sort names to ensure consistent ID regardless of player order
+    const names = [player1.name, player2.name].sort();
+    return `${names[0]}<->${names[1]}`;
   }
 }

@@ -44,14 +44,10 @@ export class Game {
     this.player1.color = "w";
     this.player2.color = "b";
 
-    this.setupEventListeners();
+    this.setupChatHandlers();
+    this.setupDisconnectHandlers()
     this.startTimer();
     this.broadcastGameStart();
-  }
-
-  private setupEventListeners() {
-    this.setupChatHandlers();
-    this.setupDisconnectHandlers();
   }
 
   private setupChatHandlers() {
