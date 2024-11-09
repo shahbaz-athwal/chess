@@ -6,14 +6,16 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import type { Socket } from "socket.io-client";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { useGameStore } from "@/hooks/useGameStore";
 
 interface ChatProps {
   socket: Socket;
 }
 
 const Chat: React.FC<ChatProps> = ({ socket }) => {
+  const { matchFound } = useGameStore();
   const [messages, setMessages] = useState<{ from: string; text: string }[]>(
-    [],
+    []
   );
   const [messageInput, setMessageInput] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -51,44 +53,46 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="text-center">Chat</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ScrollArea
-          className="mb-4 h-64 rounded-lg border"
-          ref={scrollAreaRef}
-        >
-          {messages.length > 0 ? (
-            messages.map((message, index) => (
-              <div
-                key={index}
-                className={`mb-2 rounded-lg p-2 ${
-                  message.from === "You" ? "bg-primary/10" : "bg-muted"
-                }`}
-              >
-                <strong className="text-primary">{message.from}: </strong>
-                <span>{message.text}</span>
-              </div>
-            ))
-          ) : (
-            <p className="text-center text-muted-foreground p-4">
-              No messages yet. Start the conversation!
-            </p>
-          )}
-        </ScrollArea>
+    matchFound && (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="text-center">Chat</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea
+            className="mb-4 h-64 rounded-lg border"
+            ref={scrollAreaRef}
+          >
+            {messages.length > 0 ? (
+              messages.map((message, index) => (
+                <div
+                  key={index}
+                  className={`mb-2 rounded-lg p-2 ${
+                    message.from === "You" ? "bg-primary/10" : "bg-muted"
+                  }`}
+                >
+                  <strong className="text-primary">{message.from}: </strong>
+                  <span>{message.text}</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-muted-foreground p-4">
+                No messages yet. Start the conversation!
+              </p>
+            )}
+          </ScrollArea>
 
-        <div className="flex gap-2">
-          <Input
-            value={messageInput}
-            onChange={(e) => setMessageInput(e.target.value)}
-            placeholder="Type a message..."
-          />
-          <Button onClick={handleSendMessage}>Send</Button>
-        </div>
-      </CardContent>
-    </Card>
+          <div className="flex gap-2">
+            <Input
+              value={messageInput}
+              onChange={(e) => setMessageInput(e.target.value)}
+              placeholder="Type a message..."
+            />
+            <Button onClick={handleSendMessage}>Send</Button>
+          </div>
+        </CardContent>
+      </Card>
+    )
   );
 };
 

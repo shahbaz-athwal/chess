@@ -1,23 +1,20 @@
+import { useGameStore } from "@/hooks/useGameStore";
 import type { Color, PieceSymbol, Square } from "chess.js";
 import Image from "next/image";
 import React, { useState } from "react";
 
 interface ChessBoardProps {
-  board: ({
-    square: Square;
-    type: PieceSymbol;
-    color: Color;
-  } | null)[][];
   onMove: (from: string, to: string) => void;
-  playerColor: "w" | "b";
 }
 
-function ChessBoard({ board, onMove, playerColor }: ChessBoardProps) {
+function ChessBoard({ onMove }: ChessBoardProps) {
+  const { board, playerColor } = useGameStore();
+
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
 
   const handleSquareClick = (
     square: Square,
-    piece: { type: PieceSymbol; color: Color } | null,
+    piece: { type: PieceSymbol; color: Color } | null
   ) => {
     if (selectedSquare) {
       onMove(selectedSquare, square);
@@ -61,7 +58,11 @@ function ChessBoard({ board, onMove, playerColor }: ChessBoardProps) {
                       width={40}
                       height={40}
                       className="w-[2.25rem]"
-                      src={`/${square?.color === "b" ? `b${square.type}` : `w${square.type}`}.png`}
+                      src={`/${
+                        square?.color === "b"
+                          ? `b${square.type}`
+                          : `w${square.type}`
+                      }.png`}
                     />
                   ) : null}
                 </div>
