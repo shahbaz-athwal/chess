@@ -1,7 +1,5 @@
 import { useGameStore } from "@/hooks/useGameStore";
 
-
-  
   export const GameStatus = () => {
     const { matchFound, oppName, currentTurn, playerColor, errorMessage, playerName } = useGameStore();
     

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import { Socket } from "socket.io-client";
+import type { Socket } from "socket.io-client";
 import { useGameStore } from "./useGameStore";
-import { ChessBoard } from "@/lib/types";
+import type { ChessBoard } from "@/lib/types";
 
 export const useGameSocket = (socket: Socket | null) => {
   const {

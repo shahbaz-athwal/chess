@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Chess } from "chess.js";
-import { ChessBoard, GameState } from "@/lib/types";
+import type { ChessBoard, GameState } from "@/lib/types";
 
 interface GameStore extends GameState {
   setBoard: (board: ChessBoard) => void;
