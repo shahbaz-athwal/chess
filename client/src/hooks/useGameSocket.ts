@@ -24,14 +24,15 @@ export const useGameSocket = (socket: Socket | null) => {
         color: "w" | "b";
         board: ChessBoard;
         turn: "w" | "b";
-        opp: string;
+        opponent: string;
       }) => {
+        console.log(data);
         setMatchFound(true);
         setPlayerColor(data.color);
         setBoard(data.board);
         setCurrentTurn(data.turn);
         setErrorMessage(null);
-        setOppName(data.opp);
+        setOppName(data.opponent);
         setIsFindingMatch(false);
       }
     );
@@ -43,6 +44,7 @@ export const useGameSocket = (socket: Socket | null) => {
         board: ChessBoard;
         turn: "w" | "b";
       }) => {
+        console.log("MOVE", data);
         setBoard(data.board);
         setCurrentTurn(data.turn);
         setErrorMessage(null);

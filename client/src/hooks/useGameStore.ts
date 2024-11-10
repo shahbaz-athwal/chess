@@ -20,7 +20,7 @@ export const useGameStore = create<GameStore>((set) => ({
   playerColor: null,
   matchFound: false,
   errorMessage: null,
-  oppName: "",
+  opponent: "",
   playerName: "",
   isFindingMatch: false,
 
@@ -29,7 +29,7 @@ export const useGameStore = create<GameStore>((set) => ({
   setPlayerColor: (color) => set({ playerColor: color }),
   setMatchFound: (found) => set({ matchFound: found }),
   setErrorMessage: (message) => set({ errorMessage: message }),
-  setOppName: (name) => set({ oppName: name }),
+  setOppName: (name) => set({ opponent: name }),
   setPlayerName: (name) => set({ playerName: name }),
   setIsFindingMatch: (isFinding) => set({ isFindingMatch: isFinding }),
   resetGame: () =>
@@ -39,7 +39,7 @@ export const useGameStore = create<GameStore>((set) => ({
       playerColor: null,
       matchFound: false,
       errorMessage: null,
-      oppName: "",
+      opponent: "",
       isFindingMatch: false,
     }),
 }));

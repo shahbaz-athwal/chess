@@ -7,7 +7,7 @@ export interface GameState {
   matchFound: boolean;
   errorMessage: string | null;
   playerName: string;
-  oppName: string;
+  opponent: string;
   isFindingMatch: boolean;
 }
 
