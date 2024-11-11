@@ -1,39 +1,26 @@
-import { Chess } from "chess.js";
-import {
-  GameConfig,
-  GameMove,
-  GameResult,
-  GameState,
-  GameStatus,
-  Player,
-} from "./types";
+import { Chess, type Color } from "chess.js";
+import { GameMove, GameResult, GameState, GameStatus, Player } from "./types";
 import { GameEvents } from "./GameEvents";
 import { GAME_TIME, START_GAME } from "./messages";
 import { Socket } from "socket.io";
+import { GameManager } from "./GameManager";
 
 export class Game {
   private readonly state: GameState;
-  private readonly config: GameConfig;
-  private timer?: NodeJS.Timeout;
+  private startTime: number = Date.now();
+  private timeLimit: number = 10 * 60 * 1000; // 10 minutes
 
   constructor(
     public readonly player1: Player,
-    public readonly player2: Player,
-    config: Partial<GameConfig> = {}
+    public readonly player2: Player
   ) {
-    this.config = {
-      timeLimit: 10 * 60 * 1000, // 10 minutes
-      incrementSeconds: 0,
-      ...config,
-    };
-
     this.state = {
       board: new Chess(),
       status: "IN_PROGRESS",
       lastMoveTime: Date.now(),
       timeRemaining: {
-        white: this.config.timeLimit,
-        black: this.config.timeLimit,
+        white: this.timeLimit,
+        black: this.timeLimit,
       },
     };
 
@@ -45,8 +32,7 @@ export class Game {
     this.player2.color = "b";
 
     this.setupChatHandlers();
-    this.setupDisconnectHandlers()
-    this.startTimer();
+    this.setupDisconnectHandlers();
     this.broadcastGameStart();
   }
 
@@ -75,9 +61,6 @@ export class Game {
     handleDisconnect(this.player2);
   }
 
-  private startTimer() {
-    this.timer = setInterval(() => this.updateGameTime(), 1000);
-  }
 
   private updateGameTime() {
     const currentPlayer = this.state.board.turn() === "w" ? "white" : "black";
@@ -96,6 +79,7 @@ export class Game {
     const initialState = {
       board: this.state.board.board(),
       turn: this.state.board.turn(),
+      timeRemaining: this.state.timeRemaining,
     };
 
     GameEvents.emit(this.player1.socket, START_GAME, {
@@ -112,10 +96,13 @@ export class Game {
   }
 
   public makeMove(socket: Socket, move: GameMove): boolean {
-    const player = this.getPlayerBySocket(socket);
+    const player = [this.player1, this.player2].find(
+      (player) => player.socket === socket
+    );
 
-    if (!this.isValidTurn(player)) {
-      GameEvents.emitError(socket, "It's not your turn!");
+    // Valid Turn
+    if (!(this.state.board.turn() === player?.color)) {
+      GameEvents.emitError(socket, "It's not your turn!!!");
       return false;
     }
 
@@ -143,7 +130,7 @@ export class Game {
     const gameState = {
       move,
       board: this.state.board.board(),
-      turn: this.state.board.turn(),
+      turn: this.state.board.turn() as Color,
       timeRemaining: this.state.timeRemaining,
     };
 
@@ -158,16 +145,13 @@ export class Game {
     const previousPlayer = this.state.board.turn() === "w" ? "black" : "white";
     this.state.timeRemaining[previousPlayer] -= timeElapsed;
     this.state.timeRemaining[previousPlayer] +=
-      this.config.incrementSeconds * 1000;
+      // this.config.incrementSeconds * 1000;
+      2 * 1000;
     this.state.lastMoveTime = Date.now();
   }
 
   private handleGameEnd(status: GameStatus) {
     this.state.status = status;
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
-
     const result = this.determineGameResult();
     if (result) {
       GameEvents.emitGameOver([this.player1, this.player2], result);
@@ -192,19 +176,5 @@ export class Game {
     }
 
     return undefined;
-  }
-
-  private isValidTurn(player?: Player): boolean {
-    if (!player) return false;
-    return (
-      (this.state.board.turn() === "w" && player.color === "w") ||
-      (this.state.board.turn() === "b" && player.color === "b")
-    );
-  }
-
-  private getPlayerBySocket(socket: Socket): Player | undefined {
-    return [this.player1, this.player2].find(
-      (player) => player.socket === socket
-    );
   }
 }

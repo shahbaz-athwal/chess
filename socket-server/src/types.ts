@@ -17,6 +17,8 @@ export interface Player {
 
 export interface GameState {
   board: any;
+  opponent?: string;
+  color?: Color;
   status: GameStatus;
   result?: GameResult;
   lastMoveTime: number;
@@ -30,9 +32,4 @@ export interface GameMove {
   from: string;
   to: string;
   promotion?: string;
-}
-
-export interface GameConfig {
-  timeLimit: number;
-  incrementSeconds: number;
 }

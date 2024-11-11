@@ -1,8 +1,7 @@
 import { Socket } from "socket.io";
 import { Game } from "./Game";
 import { GameMove, Player } from "./types";
-import { GAME_ALERT, INIT_GAME, MOVE } from "./messages";
-import { GameEvents } from "./GameEvents";
+import { INIT_GAME, MOVE } from "./messages";
 
 export class GameManager {
   private static instance: GameManager | null = null;
@@ -47,26 +46,23 @@ export class GameManager {
   private startGame(player1: Player, player2: Player): void {
     try {
       const gameId = this.generateGameId(player1, player2);
-      
+
       // Check if game already exists
       if (this.games.has(gameId)) {
-        throw new Error('Game already exists');
+        throw new Error("Game already exists");
       }
 
-      const game = new Game(player1, player2, {
-        timeLimit: 10 * 60 * 1000, // 10 minutes
-        // incrementSeconds: 10,
-      });
+      const game = new Game(player1, player2);
 
       this.games.set(gameId, game);
       this.pendingPlayer = null;
-      
+
       this.setupMoveHandler(game);
-      
+
       console.log(`New game started: ${gameId}`);
-      console.log('Active games:', this.games.size);
+      console.log("Active games:", this.games.size);
     } catch (error) {
-      console.error('Error starting game:', error);
+      console.error("Error starting game:", error);
       // GameEvents.emit(player1.socket, GAME_ALERT, {
       //   message: "Error starting game",
       // });
@@ -92,7 +88,7 @@ export class GameManager {
       this.pendingPlayer = null;
       this.removePlayerGames(player.socket);
       console.log(`Player ${player.name} disconnected`);
-      console.log('Active games:', this.games.size);
+      console.log("Active games:", this.games.size);
     });
   }
 
