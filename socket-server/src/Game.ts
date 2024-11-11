@@ -1,14 +1,14 @@
 import { Chess, type Color } from "chess.js";
 import { GameMove, GameResult, GameState, GameStatus, Player } from "./types";
 import { GameEvents } from "./GameEvents";
-import { GAME_TIME, START_GAME } from "./messages";
+import { START_GAME } from "./messages";
 import { Socket } from "socket.io";
 import { GameManager } from "./GameManager";
 
 export class Game {
   public readonly id: string;
   private readonly state: GameState;
-  private startTime: number = Date.now();
+  public readonly startTime: number = Date.now();
   private timeLimit: number = 10 * 60 * 1000; // 10 minutes
 
   constructor(
@@ -64,18 +64,18 @@ export class Game {
     handleDisconnect(this.player2);
   }
 
-  private updateGameTime() {
-    const currentPlayer = this.state.board.turn() === "w" ? "white" : "black";
-    this.state.timeRemaining[currentPlayer] -= 1000;
+  // private updateGameTime() {
+  //   const currentPlayer = this.state.board.turn() === "w" ? "white" : "black";
+  //   this.state.timeRemaining[currentPlayer] -= 1000;
 
-    if (this.state.timeRemaining[currentPlayer] <= 0) {
-      this.handleGameEnd("TIME_UP");
-    }
+  //   if (this.state.timeRemaining[currentPlayer] <= 0) {
+  //     this.handleGameEnd("TIME_UP");
+  //   }
 
-    GameEvents.emitToPlayers([this.player1, this.player2], GAME_TIME, {
-      timeRemaining: this.state.timeRemaining,
-    });
-  }
+  //   GameEvents.emitToPlayers([this.player1, this.player2], GAME_TIME, {
+  //     timeRemaining: this.state.timeRemaining,
+  //   });
+  // }
 
   private broadcastGameStart() {
     const initialState = {
