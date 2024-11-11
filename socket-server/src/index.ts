@@ -18,7 +18,7 @@ class ChessServer {
     this.gameManager = GameManager.getInstance();
     this.setupSocketHandlers();
 
-    const port = process.env.PORT || 8800;
+    const port = process.env.PORT || 8000;
     server.listen(port, () => {
       console.log(`Server is running on port ${port}`);
     });
@@ -38,6 +38,11 @@ class ChessServer {
         this.gameManager.removeUser(socket);
         this.onlineCount--;
         this.broadcastOnlineCount();
+      });
+
+      socket.on("getAllGames", () => {
+        const data = Array.from(this.gameManager.getGames().keys());
+        socket.emit("allGames", data);
       });
 
       socket.on("getOnlineCount", () => {

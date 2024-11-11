@@ -25,7 +25,7 @@ export function Navbar() {
               Play
             </Link>
             <Link
-              href="/current"
+              href="/current-games"
               className="text-sm font-medium transition-colors hover:text-primary"
             >
               Current Games
