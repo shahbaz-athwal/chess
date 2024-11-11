@@ -15,7 +15,7 @@ class ChessServer {
       },
     });
 
-    this.gameManager = new GameManager();
+    this.gameManager = GameManager.getInstance();
     this.setupSocketHandlers();
 
     const port = process.env.PORT || 8800;
