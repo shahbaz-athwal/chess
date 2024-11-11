@@ -52,7 +52,7 @@ export class GameManager {
         throw new Error("Game already exists");
       }
 
-      const game = new Game(player1, player2);
+      const game = new Game(player1, player2, gameId);
 
       this.games.set(gameId, game);
       this.pendingPlayer = null;
@@ -108,5 +108,9 @@ export class GameManager {
 
   public getGames() {
     return this.games;
+  }
+
+  public removeGame(game: Game) {
+    this.games.delete(game.id);
   }
 }

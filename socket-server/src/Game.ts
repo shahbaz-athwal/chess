@@ -6,14 +6,17 @@ import { Socket } from "socket.io";
 import { GameManager } from "./GameManager";
 
 export class Game {
+  public readonly id: string;
   private readonly state: GameState;
   private startTime: number = Date.now();
   private timeLimit: number = 10 * 60 * 1000; // 10 minutes
 
   constructor(
     public readonly player1: Player,
-    public readonly player2: Player
+    public readonly player2: Player,
+    id: string
   ) {
+    this.id = id;
     this.state = {
       board: new Chess(),
       status: "IN_PROGRESS",
@@ -60,7 +63,6 @@ export class Game {
     handleDisconnect(this.player1);
     handleDisconnect(this.player2);
   }
-
 
   private updateGameTime() {
     const currentPlayer = this.state.board.turn() === "w" ? "white" : "black";
@@ -138,6 +140,7 @@ export class Game {
 
     if (this.state.board.isGameOver()) {
       this.handleGameEnd("COMPLETED");
+      GameManager.getInstance().removeGame(this);
     }
   }
 
@@ -155,6 +158,7 @@ export class Game {
     const result = this.determineGameResult();
     if (result) {
       GameEvents.emitGameOver([this.player1, this.player2], result);
+      GameManager.getInstance().removeGame(this);
     }
   }
 
