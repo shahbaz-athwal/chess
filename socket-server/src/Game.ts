@@ -4,6 +4,7 @@ import { GameEvents } from "./GameEvents";
 import { START_GAME } from "./messages";
 import { Socket } from "socket.io";
 import { GameManager } from "./GameManager";
+import { SpectateGame } from "./SpectateGame";
 
 export class Game {
   public readonly id: string;
@@ -137,6 +138,7 @@ export class Game {
     };
 
     GameEvents.emitGameState([this.player1, this.player2], gameState);
+    SpectateGame.getInstance().broadcastGameState(this.id, gameState);
 
     if (this.state.board.isGameOver()) {
       this.handleGameEnd("COMPLETED");
@@ -160,6 +162,18 @@ export class Game {
       GameEvents.emitGameOver([this.player1, this.player2], result);
       GameManager.getInstance().removeGame(this);
     }
+  }
+
+  public getGameData() {
+    const gameData = {
+      player1: this.player1.name,
+      player2: this.player2.name,
+      status: this.state.status,
+      result: this.state.result,
+      board: this.state.board.board(),
+      turn: this.state.board.turn(),
+    };
+    return gameData;
   }
 
   private determineGameResult(): GameResult | undefined {

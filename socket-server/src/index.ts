@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 import { createServer } from "http";
 import { GameManager } from "./GameManager";
+import { SpectateGame } from "./SpectateGame";
 
 class ChessServer {
   private io: Server;
@@ -47,6 +48,13 @@ class ChessServer {
 
       socket.on("getOnlineCount", () => {
         this.broadcastOnlineCount();
+      });
+
+      socket.on("spectate_game", (gameId: string) => {
+        const game = this.gameManager.getGames().get(gameId);
+        if (game) {
+          SpectateGame.getInstance().addSpectator(socket, gameId, game);
+        }
       });
     });
   }
