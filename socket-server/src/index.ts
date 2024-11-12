@@ -43,7 +43,7 @@ class ChessServer {
 
       socket.on("get_all_games", () => {
         const data = Array.from(this.gameManager.getGames().keys());
-        socket.emit("allGames", data);
+        socket.emit("all_games", data);
       });
 
       socket.on("get_online_count", () => {

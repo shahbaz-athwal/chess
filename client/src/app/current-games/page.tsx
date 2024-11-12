@@ -23,7 +23,7 @@ export default function SpectatorGameList() {
         setIsInitialLoading(false)
       }
 
-      socket.on("allGames", handleAllGames)
+      socket.on("all_games", handleAllGames)
 
       // Fetch games immediately
       fetchGames()
@@ -33,7 +33,7 @@ export default function SpectatorGameList() {
 
       return () => {
         clearInterval(interval)
-        socket.off("allGames", handleAllGames)
+        socket.off("all_games", handleAllGames)
       }
     }
   }, [socket])
