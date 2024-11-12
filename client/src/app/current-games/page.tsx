@@ -15,7 +15,7 @@ export default function SpectatorGameList() {
   useEffect(() => {
     if (socket) {
       const fetchGames = () => {
-        socket.emit("getAllGames")
+        socket.emit("get_all_games")
       }
 
       const handleAllGames = (data: string[]) => {

@@ -9,13 +9,13 @@ function OnlineCount() {
 
   useEffect(() => {
     if (socket) {
-      socket.emit("getOnlineCount");
-      socket.on("onlineCount", (count: number) => {
+      socket.emit("get_online_count");
+      socket.on("online_count", (count: number) => {
         setOnlineCount(count);
       });
 
       return () => {
-        socket.off("onlineCount");
+        socket.off("online_count");
       };
     }
   }, [socket]);

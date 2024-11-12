@@ -41,12 +41,12 @@ class ChessServer {
         this.broadcastOnlineCount();
       });
 
-      socket.on("getAllGames", () => {
+      socket.on("get_all_games", () => {
         const data = Array.from(this.gameManager.getGames().keys());
         socket.emit("allGames", data);
       });
 
-      socket.on("getOnlineCount", () => {
+      socket.on("get_online_count", () => {
         this.broadcastOnlineCount();
       });
 
@@ -60,7 +60,7 @@ class ChessServer {
   }
 
   private broadcastOnlineCount(): void {
-    this.io.emit("onlineCount", this.onlineCount);
+    this.io.emit("online_count", this.onlineCount);
   }
 }
 
