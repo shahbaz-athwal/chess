@@ -64,7 +64,7 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
         </CardHeader>
         <CardContent>
           <ScrollArea
-            className="mb-4 h-[30vh] md:h-[55vh] rounded-lg border p-4"
+            className="mb-4 h-[30vh] md:h-[60vh] rounded-lg border p-4"
             ref={scrollAreaRef}
           >
             {messages.length > 0 ? (

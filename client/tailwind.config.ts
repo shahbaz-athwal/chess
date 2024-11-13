@@ -55,7 +55,10 @@ export default {
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
   			}
-  		}
+  		},
+		animation: {
+			"fade-in": "fade-in 0.5s ease-out",
+		},
   	}
   },
   plugins: [require("tailwindcss-animate")],
