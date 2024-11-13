@@ -19,7 +19,7 @@ interface Message {
 }
 
 const Chat: React.FC<ChatProps> = ({ socket }) => {
-  const { matchFound } = useGameStore();
+  const { matchFound, playerName } = useGameStore();
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -77,7 +77,7 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
                 >
                   {message.from !== "You" && (
                     <Avatar className="mr-2">
-                      <AvatarFallback>{message.from[0]}</AvatarFallback>
+                      <AvatarFallback>{message.from[0]?.toUpperCase()}</AvatarFallback>
                     </Avatar>
                   )}
                   <div
@@ -91,7 +91,7 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
                   </div>
                   {message.from === "You" && (
                     <Avatar className="ml-2">
-                      <AvatarFallback>Y</AvatarFallback>
+                      <AvatarFallback>{playerName[0]?.toUpperCase()}</AvatarFallback>
                     </Avatar>
                   )}
                 </div>
