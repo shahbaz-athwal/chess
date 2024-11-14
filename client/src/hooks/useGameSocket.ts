@@ -14,6 +14,7 @@ export const useGameSocket = (socket: Socket | null) => {
     setOppName,
     playerColor,
     setMessages,
+    resetGame
   } = useGameStore();
 
   useEffect(() => {
@@ -60,11 +61,17 @@ export const useGameSocket = (socket: Socket | null) => {
       setMessages([...useGameStore.getState().messages, data]);
     });
 
+    socket.on("disconnect", () => {
+      resetGame();
+      setErrorMessage("You have been disconnected from the server.");
+    });
+
     return () => {
       socket.off("move");
       socket.off("start_game");
       socket.off("invalid_move");
       socket.off("chat");
+      socket.off("disconnect");
     };
   }, [socket]);
 
