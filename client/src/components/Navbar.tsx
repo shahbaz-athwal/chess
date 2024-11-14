@@ -54,7 +54,7 @@ export function Navbar() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/current" className="w-full">
+                <Link href="/current-games" className="w-full">
                   Current Games
                 </Link>
               </DropdownMenuItem>
