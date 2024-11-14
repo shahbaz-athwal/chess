@@ -4,35 +4,18 @@ import React, { useState, useRef, useEffect } from "react";
 import { ScrollArea } from "./ui/scroll-area";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import type { Socket } from "socket.io-client";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { useGameStore } from "@/hooks/useGameStore";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 
 interface ChatProps {
-  socket: Socket;
+  sendMessage: (messageInput: string) => void;
 }
 
-interface Message {
-  from: string;
-  text: string;
-}
-
-const Chat: React.FC<ChatProps> = ({ socket }) => {
-  const { matchFound, playerName } = useGameStore();
-  const [messages, setMessages] = useState<Message[]>([]);
+const Chat: React.FC<ChatProps> = ({ sendMessage }) => {
+  const { matchFound, playerName, messages } = useGameStore();
   const [messageInput, setMessageInput] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    socket.on("chat", (data: { from: string; text: string }) => {
-      setMessages((prevMessages) => [...prevMessages, data]);
-    });
-
-    return () => {
-      socket.off("chat");
-    };
-  }, [socket]);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -42,19 +25,6 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
       });
     }
   }, [messages]);
-
-  const handleSendMessage = () => {
-    if (messageInput.trim() === "") return;
-
-    socket.emit("chat", { from: "You", text: messageInput });
-
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { from: "You", text: messageInput },
-    ]);
-
-    setMessageInput("");
-  };
 
   return (
     matchFound && (
@@ -77,7 +47,9 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
                 >
                   {message.from !== "You" && (
                     <Avatar className="mr-2">
-                      <AvatarFallback>{message.from[0]?.toUpperCase()}</AvatarFallback>
+                      <AvatarFallback>
+                        {message.from[0]?.toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                   )}
                   <div
@@ -91,7 +63,9 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
                   </div>
                   {message.from === "You" && (
                     <Avatar className="ml-2">
-                      <AvatarFallback>{playerName[0]?.toUpperCase()}</AvatarFallback>
+                      <AvatarFallback>
+                        {playerName[0]?.toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                   )}
                 </div>
@@ -110,11 +84,19 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
               placeholder="Type a message..."
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  handleSendMessage();
+                  sendMessage(messageInput);
+                  setMessageInput("");
                 }
               }}
             />
-            <Button onClick={handleSendMessage}>Send</Button>
+            <Button
+              onClick={() => {
+                setMessageInput("");
+                sendMessage(messageInput);
+              }}
+            >
+              Send
+            </Button>
           </div>
         </CardContent>
       </Card>

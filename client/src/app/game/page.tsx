@@ -7,11 +7,11 @@ import { MatchFinder } from "@/components/MatchFinder";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGameSocket } from "@/hooks/useGameSocket";
 import { useSocket } from "@/hooks/useSocket";
-import { AlertCircle, Loader2, } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 
 export default function Game() {
   const { socket, error } = useSocket();
-  const { makeMove, initGame } = useGameSocket(socket);
+  const { makeMove, initGame, sendMessage } = useGameSocket(socket);
 
   if (error) {
     return (
@@ -66,7 +66,7 @@ export default function Game() {
           </CardContent>
         </Card>
 
-        <Chat socket={socket} />
+        <Chat sendMessage={sendMessage} />
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Chess } from "chess.js";
-import type { ChessBoard, GameState } from "@/lib/types";
+import type { ChatMessage, ChessBoard, GameState } from "@/lib/types";
 
 interface GameStore extends GameState {
   setBoard: (board: ChessBoard) => void;
@@ -11,6 +11,7 @@ interface GameStore extends GameState {
   setPlayerName: (name: string) => void;
   setOppName: (name: string) => void;
   setIsFindingMatch: (isFinding: boolean) => void;
+  setMessages: (messages: ChatMessage[]) => void;
   resetGame: () => void;
 }
 
@@ -23,6 +24,7 @@ export const useGameStore = create<GameStore>((set) => ({
   opponent: "",
   playerName: "",
   isFindingMatch: false,
+  messages: [],
 
   setBoard: (board) => set({ board }),
   setCurrentTurn: (turn) => set({ currentTurn: turn }),
@@ -32,6 +34,7 @@ export const useGameStore = create<GameStore>((set) => ({
   setOppName: (name) => set({ opponent: name }),
   setPlayerName: (name) => set({ playerName: name }),
   setIsFindingMatch: (isFinding) => set({ isFindingMatch: isFinding }),
+  setMessages: (messages) => set({ messages }),
   resetGame: () =>
     set({
       board: new Chess().board(),
@@ -41,5 +44,6 @@ export const useGameStore = create<GameStore>((set) => ({
       errorMessage: null,
       opponent: "",
       isFindingMatch: false,
+      messages: [],
     }),
 }));

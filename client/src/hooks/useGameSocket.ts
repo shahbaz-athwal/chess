@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import type { Socket } from "socket.io-client";
 import { useGameStore } from "./useGameStore";
-import type { ChessBoard } from "@/lib/types";
+import type { ChatMessage, ChessBoard } from "@/lib/types";
 
 export const useGameSocket = (socket: Socket | null) => {
   const {
@@ -13,6 +13,7 @@ export const useGameSocket = (socket: Socket | null) => {
     setIsFindingMatch,
     setOppName,
     playerColor,
+    setMessages,
   } = useGameStore();
 
   useEffect(() => {
@@ -55,10 +56,15 @@ export const useGameSocket = (socket: Socket | null) => {
       setErrorMessage(data.message);
     });
 
+    socket.on("chat", (data: ChatMessage) => {
+      setMessages([...useGameStore.getState().messages, data]);
+    });
+
     return () => {
       socket.off("move");
       socket.off("start_game");
       socket.off("invalid_move");
+      socket.off("chat");
     };
   }, [socket]);
 
@@ -79,5 +85,13 @@ export const useGameSocket = (socket: Socket | null) => {
     socket?.emit("init_game", { name });
   };
 
-  return { makeMove, initGame };
+  const sendMessage = (messageInput: string) => {
+    if (!socket || messageInput.trim() === "") return;
+
+    const newMessage: ChatMessage = { from: "You", text: messageInput };
+    socket.emit("chat", newMessage);
+    setMessages([...useGameStore.getState().messages, newMessage]);
+  };
+
+  return { makeMove, initGame, sendMessage };
 };

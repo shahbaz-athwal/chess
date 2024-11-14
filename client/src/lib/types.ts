@@ -9,6 +9,7 @@ export interface GameState {
   playerName: string;
   opponent: string;
   isFindingMatch: boolean;
+  messages: ChatMessage[];
 }
 
 export interface ChatMessage {
