@@ -6,24 +6,24 @@ import { GithubIcon, LinkedinIcon, Globe } from 'lucide-react'
 export default function About() {
   return (
     <div className="container max-w-2xl mx-auto px-4 py-12">
-      <h1 className="text-4xl font-bold mb-6">About Our Chess Game</h1>
+      <h1 className="text-4xl font-bold mb-6">About</h1>
       
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>♟️ Chess Game with WebSockets</CardTitle>
-          <CardDescription>
+          <div className='text-3xl font-semibold mb-4'>♟️ Chess Game with WebSockets</div>
+          <CardDescription className='text-base text-muted-foreground'>
             A real-time chess application built using Next.js and Socket.io. Developed as part of the COMP3343 - Data Communication and Computer Networks course.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <h2 className="text-2xl font-semibold mb-4">✨ Features</h2>
-          <ul className="list-disc pl-6 mb-6 space-y-2">
+          <h2 className="text-3xl font-semibold mb-4 ">✨ Features</h2>
+          <ul className="list-disc pl-6 mb-6 space-y-2 text-base text-muted-foreground">
             <li>🎮 <span className="font-medium">Multiplayer:</span> Multiple users can connect and play against each other.</li>
             <li>💬 <span className="font-medium">Chat Feature:</span> Players can communicate with each other through a real-time chat feature.</li>
             <li>👀 <span className="font-medium">Spectate Mode:</span> Allows additional users to join as spectators and watch ongoing games.</li>
           </ul>
           
-          <h2 className="text-2xl font-semibold mb-4">🛠️ Technologies Used</h2>
+          <h2 className="text-3xl font-semibold mb-4">🛠️ Technologies Used</h2>
           <div className="flex flex-wrap gap-2 mb-6">
             <Badge variant="secondary">Next.js</Badge>
             <Badge variant="secondary">Socket.io</Badge>
@@ -32,6 +32,8 @@ export default function About() {
             <Badge variant="secondary">Zustand</Badge>
             <Badge variant="secondary">Tailwind</Badge>
             <Badge variant="secondary">ShadCN</Badge>
+            <Badge variant="secondary">GCP Cloud Run</Badge>
+            <Badge variant="secondary">Vercel</Badge>
           </div>
         </CardContent>
       </Card>
