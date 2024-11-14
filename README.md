@@ -1,22 +1,23 @@
-# Chess Game with WebSockets
+# ♟️ Chess Game with WebSockets
 
-This is a real-time chess application built using **Next.js** and **WebSockets**. It allows players to connect and play chess in real-time with updates reflecting instantaneously using WebSocket connections. The project was developed as part of the **COMP3343 - Data Communication and Computer Networks** course.
+This is a real-time chess application built using **Next.js** and **Socket.io**. The project was developed as part of the **COMP3343 - Data Communication and Computer Networks** course.
 
-## Features
+## ✨ Features
 
-- **FEN Notation Support**: The chessboard uses FEN (Forsyth–Edwards Notation) to represent the state of the game.
-- **Next.js Framework**: The app is built using Next.js for a modern React-based web development experience.
-- **WebSocket Communication**: WebSockets are used to establish real-time, bidirectional communication between the client and the server.
-- **Multiplayer**: Multiple users can connect and play against each other.
+- 🎮 **Multiplayer**: Multiple users can connect and play against each other.
+- 💬 **Chat Feature**: Players can communicate with each other through a real-time chat feature.
+- 👀 **Spectate Mode**: Allows additional users to join as spectators and watch ongoing games.
 
-## Technologies Used
+## 🛠️ Technologies Used
 
 - **Next.js**: For building the front-end and server-side rendering.
-- **WebSockets**: For real-time, bidirectional communication between the client and server.
+- **Socket.io**: For real-time, bidirectional communication between the client and server.
 - **Chess.js**: A library to handle chess game logic, rules, and FEN notation.
+- **Docker**: For containerizing the application and simplifying deployment.
+- **Zustand**: Used on the client side to efficiently manage the application's state.
 - **TailwindCSS & ShadCN**: For styling the application.
 
-## Setup and Installation
+## ⚙️ Setup and Installation
 
 ### Installation
 
