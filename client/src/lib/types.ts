@@ -39,5 +39,5 @@ export interface SpectateData {
   status: GameStatus;
   result?: GameResult;
   board: ChessBoard;
-  turn?: Color;
+  turn: Color;
 }
