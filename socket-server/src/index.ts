@@ -25,18 +25,12 @@ class ChessServer {
 
   private setupSocketHandlers(): void {
     this.io.on("connection", (socket) => {
-      // Add user to game manager
-      gameManager.addUser(socket);
-
       // Handle online count
       this.onlineCount++;
       this.broadcastOnlineCount();
 
-      // Handle disconnect
-      socket.on("disconnect", () => {
-        gameManager.removeUser(socket);
-        this.onlineCount--;
-        this.broadcastOnlineCount();
+      socket.on("init_game", (data: { name: string }) => {
+        gameManager.addUser(socket, data);
       });
 
       socket.on("get_all_games", () => {
@@ -53,6 +47,13 @@ class ChessServer {
         if (game) {
           spectateGame.addSpectator(socket, gameId, game);
         }
+      });
+
+      // Handle disconnect
+      socket.on("disconnect", () => {
+        gameManager.removeUser(socket);
+        this.onlineCount--;
+        this.broadcastOnlineCount();
       });
     });
   }

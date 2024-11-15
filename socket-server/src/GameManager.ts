@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
 import { Game } from "./Game";
 import { GameMove, Player } from "./types";
-import { INIT_GAME, MOVE } from "./messages";
+import { MOVE } from "./messages";
 
 class GameManager {
   private static instance: GameManager | null = null;
@@ -19,12 +19,10 @@ class GameManager {
     return GameManager.instance;
   }
 
-  public addUser(socket: Socket): void {
-    socket.on(INIT_GAME, (data: { name: string }) => {
-      const player: Player = { socket, name: data.name };
-      this.handleNewPlayer(player);
-      this.setupDisconnectHandler(player);
-    });
+  public addUser(socket: Socket, data: { name: string }): void {
+    const player: Player = { socket, name: data.name };
+    this.handleNewPlayer(player);
+    this.setupDisconnectHandler(player);
   }
 
   public removeUser(socket: Socket): void {
