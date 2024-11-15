@@ -1,7 +1,7 @@
 import type { Socket } from "socket.io";
 import { Game } from "./Game";
 import { GameEvents } from "./GameEvents";
-import { GameState } from "./types";
+import { GameStatus } from "./types";
 
 interface Spectater {
   socket: Socket;
@@ -40,7 +40,7 @@ class SpectateGame {
 
   public broadcastGameState(
     gameId: string,
-    gameState: Partial<GameState>
+    gameState: { board: any; turn: any; status: GameStatus }
   ): void {
     const gameSpectators = this.spectators.filter(
       (spectator) => spectator.gameId === gameId

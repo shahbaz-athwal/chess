@@ -138,7 +138,11 @@ export class Game {
     };
 
     GameEvents.emitGameState([this.player1, this.player2], gameState);
-    spectateGame.broadcastGameState(this.id, gameState);
+    spectateGame.broadcastGameState(this.id, {
+      board: gameState.board,
+      turn: gameState.turn,
+      status: this.state.status,
+    });
 
     if (this.state.board.isGameOver()) {
       this.handleGameEnd("COMPLETED");
@@ -166,6 +170,7 @@ export class Game {
 
   public getGameData() {
     const gameData = {
+      startTime: this.startTime,
       player1: this.player1.name,
       player2: this.player2.name,
       status: this.state.status,

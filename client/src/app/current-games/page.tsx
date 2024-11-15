@@ -1,42 +1,48 @@
-'use client'
+"use client";
 
-import { useSocket } from "@/hooks/useSocket"
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Loader2, EyeIcon } from "lucide-react"
-import Link from "next/link"
+import { useSocket } from "@/hooks/useSocket";
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Loader2, EyeIcon } from "lucide-react";
+import Link from "next/link";
 
 export default function SpectatorGameList() {
-  const { socket } = useSocket()
-  const [games, setGames] = useState<string[]>([])
-  const [isInitialLoading, setIsInitialLoading] = useState(true)
+  const { socket } = useSocket();
+  const [games, setGames] = useState<string[]>([]);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   useEffect(() => {
     if (socket) {
       const fetchGames = () => {
-        socket.emit("get_all_games")
-      }
+        socket.emit("get_all_games");
+      };
 
       const handleAllGames = (data: string[]) => {
-        setGames(data)
-        setIsInitialLoading(false)
-      }
+        setGames(data);
+        setIsInitialLoading(false);
+      };
 
-      socket.on("all_games", handleAllGames)
+      socket.on("all_games", handleAllGames);
 
       // Fetch games immediately
-      fetchGames()
+      fetchGames();
 
       // Fetch games every 3 seconds
-      const interval = setInterval(fetchGames, 3000)
+      const interval = setInterval(fetchGames, 3000);
 
       return () => {
-        clearInterval(interval)
-        socket.off("all_games", handleAllGames)
-      }
+        clearInterval(interval);
+        socket.off("all_games", handleAllGames);
+      };
     }
-  }, [socket])
+  }, [socket]);
 
   return (
     <Card className="my-12 w-full max-w-md mx-auto">
@@ -56,13 +62,12 @@ export default function SpectatorGameList() {
           <ul className="space-y-2">
             {games.map((game, index) => (
               <li key={index}>
-                <Link href={`/spectate/${game}`} passHref>
+                <Link href={`/current-games/${game}`}>
                   <Button
                     variant="outline"
-                    className="w-full justify-start text-left font-normal hover:bg-primary hover:text-primary-foreground transition-colors"
+                    className="w-full justify-center text-lg font-normal hover:bg-primary hover:text-primary-foreground transition-colors"
                   >
-                    <EyeIcon className="w-4 h-4 mr-2" />
-                    {game}
+                    {game.split("$vs$")[0]} {" vs "} {game.split("$vs$")[1]}
                   </Button>
                 </Link>
               </li>
@@ -70,10 +75,12 @@ export default function SpectatorGameList() {
           </ul>
         ) : (
           <div className="text-center py-8">
-            <p className="text-muted-foreground">No games available to spectate at the moment</p>
+            <p className="text-muted-foreground">
+              No games available to spectate at the moment
+            </p>
           </div>
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
