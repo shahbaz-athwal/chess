@@ -35,9 +35,6 @@ class GameManager {
       this.startGame(this.pendingPlayer, player);
     } else {
       this.pendingPlayer = player;
-      // GameEvents.emit(player.socket, GAME_ALERT, {
-      //   message: "Waiting for opponent...",
-      // });
     }
   }
 
@@ -61,12 +58,6 @@ class GameManager {
       console.log("Active games:", this.games.size);
     } catch (error) {
       console.error("Error starting game:", error);
-      // GameEvents.emit(player1.socket, GAME_ALERT, {
-      //   message: "Error starting game",
-      // });
-      // GameEvents.emit(player2.socket, GAME_ALERT, {
-      //   message: "Error starting game",
-      // });
     }
   }
 
@@ -101,7 +92,7 @@ class GameManager {
   private generateGameId(player1: Player, player2: Player): string {
     // Sort names to ensure consistent ID regardless of player order
     const names = [player1.name, player2.name].sort();
-    return `${names[0]}<->${names[1]}`;
+    return `${names[0]}$vs$${names[1]}`;
   }
 
   public getGames() {
