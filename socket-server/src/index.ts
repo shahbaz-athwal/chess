@@ -1,11 +1,10 @@
 import { Server } from "socket.io";
 import { createServer } from "http";
-import { GameManager } from "./GameManager";
-import { SpectateGame } from "./SpectateGame";
+import { spectateGame } from "./SpectateGame";
+import { gameManager } from "./GameManager";
 
 class ChessServer {
   private io: Server;
-  private gameManager: GameManager;
   private onlineCount: number = 0;
 
   constructor() {
@@ -16,7 +15,6 @@ class ChessServer {
       },
     });
 
-    this.gameManager = GameManager.getInstance();
     this.setupSocketHandlers();
 
     const port = process.env.PORT || 8000;
@@ -28,7 +26,7 @@ class ChessServer {
   private setupSocketHandlers(): void {
     this.io.on("connection", (socket) => {
       // Add user to game manager
-      this.gameManager.addUser(socket);
+      gameManager.addUser(socket);
 
       // Handle online count
       this.onlineCount++;
@@ -36,13 +34,13 @@ class ChessServer {
 
       // Handle disconnect
       socket.on("disconnect", () => {
-        this.gameManager.removeUser(socket);
+        gameManager.removeUser(socket);
         this.onlineCount--;
         this.broadcastOnlineCount();
       });
 
       socket.on("get_all_games", () => {
-        const data = Array.from(this.gameManager.getGames().keys());
+        const data = Array.from(gameManager.getGames().keys());
         socket.emit("all_games", data);
       });
 
@@ -51,9 +49,9 @@ class ChessServer {
       });
 
       socket.on("spectate_game", (gameId: string) => {
-        const game = this.gameManager.getGames().get(gameId);
+        const game = gameManager.getGamebyId(gameId);
         if (game) {
-          SpectateGame.getInstance().addSpectator(socket, gameId, game);
+          spectateGame.addSpectator(socket, gameId, game);
         }
       });
     });

@@ -3,7 +3,7 @@ import { Game } from "./Game";
 import { GameMove, Player } from "./types";
 import { INIT_GAME, MOVE } from "./messages";
 
-export class GameManager {
+class GameManager {
   private static instance: GameManager | null = null;
   private games: Map<string, Game>;
   private pendingPlayer: Player | null = null;
@@ -110,7 +110,13 @@ export class GameManager {
     return this.games;
   }
 
+  public getGamebyId(id: string): Game | undefined {
+    return this.games.get(id);
+  }
+
   public removeGame(game: Game) {
     this.games.delete(game.id);
   }
 }
+
+export const gameManager = GameManager.getInstance();

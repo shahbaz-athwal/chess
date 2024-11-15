@@ -3,8 +3,8 @@ import { GameMove, GameResult, GameState, GameStatus, Player } from "./types";
 import { GameEvents } from "./GameEvents";
 import { START_GAME } from "./messages";
 import { Socket } from "socket.io";
-import { GameManager } from "./GameManager";
-import { SpectateGame } from "./SpectateGame";
+import { gameManager } from "./GameManager";
+import { spectateGame } from "./SpectateGame";
 
 export class Game {
   public readonly id: string;
@@ -138,11 +138,11 @@ export class Game {
     };
 
     GameEvents.emitGameState([this.player1, this.player2], gameState);
-    SpectateGame.getInstance().broadcastGameState(this.id, gameState);
+    spectateGame.broadcastGameState(this.id, gameState);
 
     if (this.state.board.isGameOver()) {
       this.handleGameEnd("COMPLETED");
-      GameManager.getInstance().removeGame(this);
+      gameManager.removeGame(this);
     }
   }
 
@@ -160,7 +160,7 @@ export class Game {
     const result = this.determineGameResult();
     if (result) {
       GameEvents.emitGameOver([this.player1, this.player2], result);
-      GameManager.getInstance().removeGame(this);
+      gameManager.removeGame(this);
     }
   }
 

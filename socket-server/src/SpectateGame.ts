@@ -8,7 +8,7 @@ interface Spectater {
   gameId: string;
 }
 
-export class SpectateGame {
+class SpectateGame {
   private spectators: Spectater[] = [];
   private static instance: SpectateGame | null = null;
 
@@ -51,3 +51,5 @@ export class SpectateGame {
     });
   }
 }
+
+export const spectateGame = SpectateGame.getInstance();
