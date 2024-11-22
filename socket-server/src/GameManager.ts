@@ -26,14 +26,15 @@ class GameManager {
   }
 
   public removeUser(socket: Socket): void {
-    this.pendingPlayer = null;
     this.removePlayerGames(socket);
   }
 
   private handleNewPlayer(player: Player): void {
+    console.log("Pending player:", this.pendingPlayer?.name)
     if (this.pendingPlayer) {
       this.startGame(this.pendingPlayer, player);
     } else {
+      console.log("set pending: ", player.name)
       this.pendingPlayer = player;
     }
   }
