@@ -30,11 +30,9 @@ class GameManager {
   }
 
   private handleNewPlayer(player: Player): void {
-    console.log("Pending player:", this.pendingPlayer?.name)
     if (this.pendingPlayer) {
       this.startGame(this.pendingPlayer, player);
     } else {
-      console.log("set pending: ", player.name)
       this.pendingPlayer = player;
     }
   }
@@ -54,9 +52,6 @@ class GameManager {
       this.pendingPlayer = null;
 
       this.setupMoveHandler(game);
-
-      console.log(`New game started: ${gameId}`);
-      console.log("Active games:", this.games.size);
     } catch (error) {
       console.error("Error starting game:", error);
     }
@@ -77,8 +72,6 @@ class GameManager {
     player.socket.on("disconnect", () => {
       this.pendingPlayer = null;
       this.removePlayerGames(player.socket);
-      console.log(`Player ${player.name} disconnected`);
-      console.log("Active games:", this.games.size);
     });
   }
 

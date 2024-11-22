@@ -28,7 +28,6 @@ export const useGameSocket = (socket: Socket | null) => {
         turn: "w" | "b";
         opponent: string;
       }) => {
-        console.log(data);
         setMatchFound(true);
         setPlayerColor(data.color);
         setBoard(data.board);
@@ -46,7 +45,6 @@ export const useGameSocket = (socket: Socket | null) => {
         board: ChessBoard;
         turn: "w" | "b";
       }) => {
-        console.log("MOVE", data);
         setBoard(data.board);
         setCurrentTurn(data.turn);
         setErrorMessage(null);
