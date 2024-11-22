@@ -5,9 +5,16 @@ import { ChessBoard, GameStatus, SpectateData } from "@/lib/types";
 import { Color } from "chess.js";
 
 export const useSpectate = (socket: Socket | null, gameId: string) => {
-    
-  const { setBoard, setTurn, setStatus, setResult, setPlayer1, setPlayer2 } =
-    useSpectateStore();
+  const {
+    setBoard,
+    setTurn,
+    setStatus,
+    setResult,
+    setPlayer1,
+    setPlayer2,
+    setPlayer1Color,
+    setPlayer2Color,
+  } = useSpectateStore();
 
   useEffect(() => {
     if (!socket) return;
@@ -19,6 +26,8 @@ export const useSpectate = (socket: Socket | null, gameId: string) => {
       setTurn(data.turn);
       setStatus(data.status);
       setResult(data.result!);
+      setPlayer1Color(data.player1Color);
+      setPlayer2Color(data.player2Color);
       setPlayer1(data.player1);
       setPlayer2(data.player2);
     });

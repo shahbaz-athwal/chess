@@ -34,6 +34,8 @@ export type ChessBoard = ({
 
 export interface SpectateData {
   startTime: number;
+  player1Color: Color;
+  player2Color: Color;
   player1: string;
   player2: string;
   status: GameStatus;

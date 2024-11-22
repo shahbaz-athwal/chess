@@ -171,6 +171,8 @@ export class Game {
   public getGameData() {
     const gameData = {
       startTime: this.startTime,
+      player1Color: this.player1.color,
+      player2Color: this.player2.color,
       player1: this.player1.name,
       player2: this.player2.name,
       status: this.state.status,
