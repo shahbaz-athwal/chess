@@ -4,6 +4,8 @@ import { useSocket } from "@/hooks/useSocket";
 import { useSpectate } from "@/hooks/useSpectate";
 import { useSpectateStore } from "@/hooks/useSpectateStore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { ChessPiece } from "@/components/ChessBoard";
 
 function Spectate({ params }: { params: { gameId: string } }) {
   const gameId = params.gameId.replaceAll("%24", "$");
@@ -12,7 +14,6 @@ function Spectate({ params }: { params: { gameId: string } }) {
     player1,
     player2,
     player1Color,
-    player2Color,
     status,
     result,
     board,
@@ -27,9 +28,7 @@ function Spectate({ params }: { params: { gameId: string } }) {
     <div className="container mx-auto px-4 py-4">
       <Card className="w-full max-w-4xl mx-auto">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold">
-            Spectator Mode
-          </CardTitle>
+          <CardTitle className="text-2xl font-bold">Spectator Mode</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2 text-center text-2xl font-extrabold">
@@ -37,8 +36,29 @@ function Spectate({ params }: { params: { gameId: string } }) {
           </div>
 
           <div className="space-y-2">
-            <div className="bg-gray-200 aspect-square w-full max-w-sm mx-auto flex items-center justify-center">
-              <p className="text-gray-500">Chessboard Placeholder</p>
+            <div className="w-full max-w-md md:max-w-lg mx-auto">
+              <div className="grid grid-cols-8 gap-0.5 p-1.5 bg-zinc-700 rounded-lg shadow-lg">
+                {board.map((row, i) =>
+                  row.map((square, j) => {
+                    const piece = square
+                      ? { type: square.type, color: square.color }
+                      : null;
+
+                    return (
+                      <div
+                        className={cn(
+                          "aspect-square w-full cursor-pointer transition-all duration-200",
+                          (i + j) % 2 === 0 ? "bg-zinc-200" : "bg-zinc-400"
+                        )}
+                      >
+                        {piece && (
+                          <ChessPiece color={piece.color} type={piece.type} />
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             </div>
           </div>
           <div className="space-y-2 text-center text-2xl font-extrabold">

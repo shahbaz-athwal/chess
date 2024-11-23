@@ -12,7 +12,7 @@ interface ChessBoardProps {
 }
 
 // Memoized chess piece component
-const ChessPiece = memo(function ChessPiece({ 
+export const ChessPiece = memo(function ChessPiece({ 
   color, 
   type 
 }: { 
