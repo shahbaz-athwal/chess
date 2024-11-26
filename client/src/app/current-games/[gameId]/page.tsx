@@ -14,10 +14,7 @@ function Spectate({ params }: { params: { gameId: string } }) {
     player1,
     player2,
     player1Color,
-    status,
-    result,
     board,
-    turn,
   } = useSpectateStore();
 
   const { socket } = useSocket();
@@ -46,6 +43,7 @@ function Spectate({ params }: { params: { gameId: string } }) {
 
                     return (
                       <div
+                        key={`${i}${j}`}
                         className={cn(
                           "aspect-square w-full cursor-pointer transition-all duration-200",
                           (i + j) % 2 === 0 ? "bg-zinc-200" : "bg-zinc-400"
