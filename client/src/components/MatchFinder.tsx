@@ -23,9 +23,10 @@ export const MatchFinder: React.FC<MatchFinderProps> = ({ initGame }) => {
 
     setErrorMessage(null);
     try {
-      initGame(playerName);
-    } catch (error) {
+      initGame(playerName.trim().split(" ")[0]!);
+    } catch (e) {
       setErrorMessage("Failed to start game. Please try again.");
+      console.error(e);
     }
   };
 
