@@ -6,11 +6,8 @@ services:
       dockerfile: Dockerfile
       cache_from:
         - node:18-alpine
-    ports:
-      - "4000:4000"
-    volumes:
-      - .:/app:ro
-      - /app/node_modules
+    environment:
+      - PORT=4000
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.nginx.rule=Host(`chess-server.shahcodes.in`)"
